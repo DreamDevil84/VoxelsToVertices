@@ -18,7 +18,7 @@ var createScene = function () {
 
     // Arc Camera
     var camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 4, Math.PI / 4, 4, BABYLON.Vector3.Zero(), scene);
-    
+
     // Free Camera
     // var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 15, -20), scene);
     // camera.setTarget(BABYLON.Vector3.Zero());
@@ -58,7 +58,7 @@ var createScene = function () {
     // console.log(bar);
     let layers = sphere.length;
     let startLayer = 0;
-    let meshData = voxelToVertice3dtype2(sphere);
+    let meshData = voxelToVertice3d(sphere);
     // let meshData = voxelToVertice(bar);
 
     //#######################################################
