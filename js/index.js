@@ -17,11 +17,11 @@ var createScene = function () {
     // Add a camera to the scene and attach it to the canvas
 
     // Arc Camera
-    var camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 4, Math.PI / 4, 4, BABYLON.Vector3.Zero(), scene);
+    // var camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 4, Math.PI / 4, 4, BABYLON.Vector3.Zero(), scene);
 
     // Free Camera
-    // var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 15, -20), scene);
-    // camera.setTarget(BABYLON.Vector3.Zero());
+    var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 15, -20), scene);
+    camera.setTarget(BABYLON.Vector3.Zero());
 
     camera.attachControl(canvas, true);
 
@@ -30,6 +30,7 @@ var createScene = function () {
     var light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 1, -1), scene);
     // light2.diffuse = new BABYLON.Color3(0, 1, 0);
     // light2.specular = new BABYLON.Color3(0, 0, 1);
+
 
     // Add and manipulate meshes in the scene
     // var box = BABYLON.MeshBuilder.CreateBox("box", { height: 1, width: 0.75, depth: 0.25 }, scene);
@@ -51,15 +52,51 @@ var createScene = function () {
     // redSurface.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
     // let sphere = makeVoxelSphere();
 
-    let sphere = makeVoxelSphereOutline();
-    // let sphere = getTestShape();
+    // let sphere = makeVoxelSphereOutline();
+    // let sphere = makeVoxelSphere();
+    let sphere = getTestShape();
     let bar = makeBar();
     // console.log(sphere);
     // console.log(bar);
     let layers = sphere.length;
     let startLayer = 0;
-    let meshData = voxelToVertice3d(sphere);
+    // let meshData = voxelToVertice3d(sphere);
+    let meshData = buildVertices(sphere);
     // let meshData = voxelToVertice(bar);
+
+    //#######################################################
+    //  Lines
+    //#######################################################
+
+    let startpoint = -sphere.length / 2;
+
+    var myPointsX = [
+        new BABYLON.Vector3(startpoint, startpoint, startpoint),
+        new BABYLON.Vector3(startpoint, startpoint, 10)
+    ];
+    var myPointsY = [
+        new BABYLON.Vector3(startpoint, startpoint, startpoint),
+        new BABYLON.Vector3(startpoint, 10, startpoint)
+    ];
+    var myPointsZ = [
+        new BABYLON.Vector3(startpoint, startpoint, startpoint),
+        new BABYLON.Vector3(10, startpoint, startpoint)
+    ];
+    var redColor = [
+        new BABYLON.Color4(1, 0, 0, 1),
+        new BABYLON.Color4(1, 0, 0, 1)
+    ];
+    var greenColor = [
+        new BABYLON.Color4(0, 1, 0, 1),
+        new BABYLON.Color4(0, 1, 0, 1)
+    ];
+    var yellowColor = [
+        new BABYLON.Color4(1, 1, 0, 1),
+        new BABYLON.Color4(1, 1, 0, 1)
+    ];
+    var linesX = BABYLON.MeshBuilder.CreateLines("lines", { points: myPointsX, colors: redColor }, scene);
+    var linesY = BABYLON.MeshBuilder.CreateLines("lines", { points: myPointsY, colors: greenColor }, scene);
+    var linesZ = BABYLON.MeshBuilder.CreateLines("lines", { points: myPointsZ, colors: yellowColor }, scene);
 
     //#######################################################
     //  Custom mesh
@@ -109,7 +146,7 @@ var createScene = function () {
     for (let i = 0; i < vertices.length; i++) {
         positions.push(vertices[i][2] - sphere.length / 2);
         positions.push(vertices[i][1] - sphere.length / 2);
-        positions.push(vertices[i][0] - sphere.length / 2);
+        positions.push(vertices[i][0] - sphere.length / 2+4);
         // indices.push(i);
     }
     // console.log(vertices);
@@ -133,30 +170,30 @@ var createScene = function () {
     //#######################################################
     //  Standard box format
     //#######################################################
-    // for (let z = startLayer; z < (startLayer + layers); z++) {
-    //     for (let y = 0; y < sphere[z].length; y++) {
-    //         for (let x = 0; x < sphere[z][y].length; x++) {
-    //             if (sphere[z][y][x] === 1) {
-    //                 let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.9, width: 0.9, depth: 0.9 }, scene);
-    //                 box.position.z = (z - sphere.length / 2) / 1;
-    //                 box.position.y = (y - sphere.length / 2) / 1;
-    //                 box.position.x = (x - sphere.length / 2) / 1;
-    //                 if (z > layers / 2) {
-    //                     box.material = greenSurface;
-    //                 } else {
-    //                     box.material = redSurface;
-    //                 }
-    //             }
-    //             // if (sphere[z][y][x] === 2) {
-    //             //     let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.3, width: 0.3, depth: 0.3 }, scene);
-    //             //     box.position.z = (z - sphere.length / 2) / 3;
-    //             //     box.position.y = (y - sphere.length / 2) / 3;
-    //             //     box.position.x = (x - sphere.length / 2) / 3;
-    //             //     box.material = redSurface;
-    //             // }
-    //         }
-    //     }
-    // }
+    for (let z = startLayer; z < (startLayer + layers); z++) {
+        for (let y = 0; y < sphere[z].length; y++) {
+            for (let x = 0; x < sphere[z][y].length; x++) {
+                if (sphere[z][y][x] > 0) {
+                    let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.9, width: 0.9, depth: 0.9 }, scene);
+                    box.position.z = (z - sphere.length / 2) / 1;
+                    box.position.y = (y - sphere.length / 2) / 1;
+                    box.position.x = (x - sphere.length / 2) / 1;
+                    if (z > layers / 2) {
+                        box.material = greenSurface;
+                    } else {
+                        box.material = redSurface;
+                    }
+                }
+                // if (sphere[z][y][x] === 2) {
+                //     let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.3, width: 0.3, depth: 0.3 }, scene);
+                //     box.position.z = (z - sphere.length / 2) / 3;
+                //     box.position.y = (y - sphere.length / 2) / 3;
+                //     box.position.x = (x - sphere.length / 2) / 3;
+                //     box.material = redSurface;
+                // }
+            }
+        }
+    }
     // for (let z = 0; z < sphere.length; z++) {
     //     for (let y = 0; y < sphere[z].length; y++) {
     //         for (let x = 0; x < sphere[z][y].length; x++) {
@@ -186,6 +223,7 @@ var createScene = function () {
     //     }
     // }
 
+    console.log("done");
     return scene;
 
 };
@@ -238,8 +276,8 @@ function makeBar() {
 }
 
 function makeVoxelSphere() {
-    // let radius = 10;
-    let radius = document.getElementById("cubeRadius").value;
+    let radius = 10;
+    // let radius = document.getElementById("cubeRadius").value;
     if (radius < 2) {
         radius = 2;
     }
