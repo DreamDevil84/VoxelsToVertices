@@ -20,7 +20,7 @@ var createScene = function () {
     // var camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 4, Math.PI / 4, 4, BABYLON.Vector3.Zero(), scene);
 
     // Free Camera
-    var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 15, -20), scene);
+    var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(-3, 3, -4), scene);
     camera.setTarget(BABYLON.Vector3.Zero());
 
     camera.attachControl(canvas, true);
@@ -43,7 +43,7 @@ var createScene = function () {
     // greenSurface.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87);
     // greenSurface.emissiveColor = new BABYLON.Color3(1, 1, 1);
     // greenSurface.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
-    greenSurface.backFaceCulling = false;
+    // greenSurface.backFaceCulling = false;
     // greenSurface.wireframe = true;
     var redSurface = new BABYLON.StandardMaterial("redSurface", scene);
     redSurface.diffuseColor = new BABYLON.Color3(1, 0, 0);
@@ -53,14 +53,14 @@ var createScene = function () {
     // let sphere = makeVoxelSphere();
 
     // let sphere = makeVoxelSphereOutline();
-    // let sphere = makeVoxelSphere();
-    let sphere = getTestShape();
+    let sphere = makeVoxelSphere();
+    // let sphere = getTestShapes(4);
+    // let sphere = getTestPolygon();
     let bar = makeBar();
     // console.log(sphere);
     // console.log(bar);
     let layers = sphere.length;
     let startLayer = 0;
-    // let meshData = voxelToVertice3d(sphere);
     let meshData = buildVertices(sphere);
     // let meshData = voxelToVertice(bar);
 
@@ -70,7 +70,7 @@ var createScene = function () {
 
     let startpoint = -sphere.length / 2;
 
-    var myPointsX = [
+    var myPointsZ = [
         new BABYLON.Vector3(startpoint, startpoint, startpoint),
         new BABYLON.Vector3(startpoint, startpoint, 10)
     ];
@@ -78,9 +78,25 @@ var createScene = function () {
         new BABYLON.Vector3(startpoint, startpoint, startpoint),
         new BABYLON.Vector3(startpoint, 10, startpoint)
     ];
-    var myPointsZ = [
+    var myPointsX = [
         new BABYLON.Vector3(startpoint, startpoint, startpoint),
         new BABYLON.Vector3(10, startpoint, startpoint)
+    ];
+    var myPoints1 = [
+        new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + 4),
+        new BABYLON.Vector3(1000, startpoint + 1, startpoint + 4)
+    ];
+    var myPoints2 = [
+        new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + 5),
+        new BABYLON.Vector3(1000, startpoint + 1, startpoint + 5)
+    ];
+    var myPoints3 = [
+        new BABYLON.Vector3(startpoint, startpoint + 2, startpoint + 4),
+        new BABYLON.Vector3(1000, startpoint + 2, startpoint + 4)
+    ];
+    var myPoints4 = [
+        new BABYLON.Vector3(startpoint, startpoint + 2, startpoint + 5),
+        new BABYLON.Vector3(1000, startpoint + 2, startpoint + 5)
     ];
     var redColor = [
         new BABYLON.Color4(1, 0, 0, 1),
@@ -94,9 +110,15 @@ var createScene = function () {
         new BABYLON.Color4(1, 1, 0, 1),
         new BABYLON.Color4(1, 1, 0, 1)
     ];
-    var linesX = BABYLON.MeshBuilder.CreateLines("lines", { points: myPointsX, colors: redColor }, scene);
-    var linesY = BABYLON.MeshBuilder.CreateLines("lines", { points: myPointsY, colors: greenColor }, scene);
-    var linesZ = BABYLON.MeshBuilder.CreateLines("lines", { points: myPointsZ, colors: yellowColor }, scene);
+    // var linesX = BABYLON.MeshBuilder.CreateLines("linesX", { points: myPointsX, colors: redColor }, scene);
+    // var linesY = BABYLON.MeshBuilder.CreateLines("linesY", { points: myPointsY, colors: greenColor }, scene);
+    // var linesZ = BABYLON.MeshBuilder.CreateLines("linesZ", { points: myPointsZ, colors: yellowColor }, scene);
+
+    // var lines1 = BABYLON.MeshBuilder.CreateLines("lines1", { points: myPoints1 }, scene);
+    // var lines2 = BABYLON.MeshBuilder.CreateLines("lines2", { points: myPoints2, colors: redColor }, scene);
+    // var lines3 = BABYLON.MeshBuilder.CreateLines("lines3", { points: myPoints3, colors: greenColor }, scene);
+    // var lines4 = BABYLON.MeshBuilder.CreateLines("lines4", { points: myPoints4, colors: yellowColor }, scene);
+
 
     //#######################################################
     //  Custom mesh
@@ -141,12 +163,16 @@ var createScene = function () {
 
 
     let vertices = meshData[0];
+    console.log(meshData[1]);
     var indices = formatIndices(meshData[1]);
     var normals = [];
     for (let i = 0; i < vertices.length; i++) {
-        positions.push(vertices[i][2] - sphere.length / 2);
-        positions.push(vertices[i][1] - sphere.length / 2);
-        positions.push(vertices[i][0] - sphere.length / 2+4);
+        // positions.push(vertices[i][2] - sphere.length / 2);
+        // positions.push(vertices[i][1] - sphere.length / 2);
+        // positions.push(vertices[i][0] - sphere.length / 2);
+        positions.push(vertices[i][2]);
+        positions.push(vertices[i][1]);
+        positions.push(vertices[i][0]);
         // indices.push(i);
     }
     // console.log(vertices);
@@ -162,7 +188,7 @@ var createScene = function () {
 
     vertexData.applyToMesh(customMesh, true);
 
-    // writeObjFile(vertices, indices);
+    writeObjFile(meshData[0], meshData[1]);
 
     // showNormals(customMesh);
 
@@ -170,30 +196,30 @@ var createScene = function () {
     //#######################################################
     //  Standard box format
     //#######################################################
-    for (let z = startLayer; z < (startLayer + layers); z++) {
-        for (let y = 0; y < sphere[z].length; y++) {
-            for (let x = 0; x < sphere[z][y].length; x++) {
-                if (sphere[z][y][x] > 0) {
-                    let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.9, width: 0.9, depth: 0.9 }, scene);
-                    box.position.z = (z - sphere.length / 2) / 1;
-                    box.position.y = (y - sphere.length / 2) / 1;
-                    box.position.x = (x - sphere.length / 2) / 1;
-                    if (z > layers / 2) {
-                        box.material = greenSurface;
-                    } else {
-                        box.material = redSurface;
-                    }
-                }
-                // if (sphere[z][y][x] === 2) {
-                //     let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.3, width: 0.3, depth: 0.3 }, scene);
-                //     box.position.z = (z - sphere.length / 2) / 3;
-                //     box.position.y = (y - sphere.length / 2) / 3;
-                //     box.position.x = (x - sphere.length / 2) / 3;
-                //     box.material = redSurface;
-                // }
-            }
-        }
-    }
+    // for (let z = startLayer; z < (startLayer + layers); z++) {
+    //     for (let y = 0; y < sphere[z].length; y++) {
+    //         for (let x = 0; x < sphere[z][y].length; x++) {
+    //             if (sphere[z][y][x] > 0) {
+    //                 let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.1, width: 0.1, depth: 0.1 }, scene);
+    //                 box.position.z = (z - sphere.length / 2) / 1;
+    //                 box.position.y = (y - sphere.length / 2) / 1;
+    //                 box.position.x = (x - sphere.length / 2) / 1;
+    //                 if (z > layers / 2) {
+    //                     box.material = greenSurface;
+    //                 } else {
+    //                     box.material = redSurface;
+    //                 }
+    //             }
+    //             // if (sphere[z][y][x] === 2) {
+    //             //     let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.3, width: 0.3, depth: 0.3 }, scene);
+    //             //     box.position.z = (z - sphere.length / 2) / 3;
+    //             //     box.position.y = (y - sphere.length / 2) / 3;
+    //             //     box.position.x = (x - sphere.length / 2) / 3;
+    //             //     box.material = redSurface;
+    //             // }
+    //         }
+    //     }
+    // }
     // for (let z = 0; z < sphere.length; z++) {
     //     for (let y = 0; y < sphere[z].length; y++) {
     //         for (let x = 0; x < sphere[z][y].length; x++) {
@@ -412,11 +438,11 @@ function writeObjFile(vertices, indices) {
     console.log(indices);
     let objString = "";
     for (let i = 0; i < vertices.length; i++) {
-        objString += "\n" + "v " + vertices[i][0] + " " + vertices[i][1] + " " + vertices[i][2];
+        objString += "v " + vertices[i][0] + " " + vertices[i][1] + " " + vertices[i][2] + "\n";
     }
     objString += "\n ";
-    for (let j = 0; j < indices.length; j += 3) {
-        objString += "\n" + "f " + indices[j] + " " + indices[j + 1] + " " + indices[j + 2];
+    for (let j = 0; j < indices.length; j++) {
+        objString += "\n" + "f " + (indices[j][0] + 1) + " " + (indices[j][1] + 1) + " " + (indices[j][2] + 1);
     }
     download(objString, 'test.obj', 'text');
 }
@@ -432,7 +458,7 @@ function writeObjFile(vertices, indices) {
 // console.log(testArray.containsArray(test));
 // console.log(testArray.containsArrayIndex(test));
 
-function getTestShape() {
+function getTestShapes(size) {
     let shape = [];
 
     for (let z = 0; z < 4; z++) {
@@ -456,7 +482,7 @@ function getTestShape() {
                             for (let a6 = 0; a6 < 2; a6++) {
                                 for (let a7 = 0; a7 < 2; a7++) {
                                     let sum = a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7;
-                                    if (sum === 4) {
+                                    if (sum === size) {
 
                                         xpos += 3;
 
@@ -490,4 +516,67 @@ function formatIndices(indices) {
         formatedIndices.push(indices[i][2]);
     }
     return formatedIndices;
+}
+
+function getTestPolygon() {
+    let polygon =
+        [
+            [
+                [
+                    0, 0, 0, 0
+                ],
+                [
+                    0, 0, 0, 0
+                ],
+                [
+                    0, 0, 0, 0
+                ],
+                [
+                    0, 0, 0, 0
+                ]
+            ],
+            [
+                [
+                    0, 0, 0, 0
+                ],
+                [
+                    0, 1, 1, 0
+                ],
+                [
+                    0, 0, 0, 0
+                ],
+                [
+                    0, 0, 0, 0
+                ]
+            ],
+            [
+                [
+                    0, 0, 0, 0
+                ],
+                [
+                    0, 0, 1, 0
+                ],
+                [
+                    0, 1, 1, 0
+                ],
+                [
+                    0, 0, 0, 0
+                ]
+            ],
+            [
+                [
+                    0, 0, 0, 0
+                ],
+                [
+                    0, 0, 0, 0
+                ],
+                [
+                    0, 0, 0, 0
+                ],
+                [
+                    0, 0, 0, 0
+                ]
+            ]
+        ]
+    return polygon;
 }
