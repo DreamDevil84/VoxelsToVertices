@@ -5,9 +5,9 @@ let pieceList = [
     [[[1, 1], [0, 0]], [[0, 0], [1, 0]]], //#1 Single Diagonal
     [[[0, 1], [1, 0]], [[1, 0], [0, 0]]], //#2 Double Diagonal
     // 4
-    [[[1, 1], [1, 1]], [[0, 0], [0, 0]]], //#3 Flat side - NOT: Might need an update to check direction
+    [[[1, 1], [1, 1]], [[0, 0], [0, 0]]], //#3 Flat side
     [[[1, 1], [1, 0]], [[1, 0], [0, 0]]], //#4 Corner Piece
-    [[[1, 1], [1, 0]], [[0, 0], [0, 1]]], //#5 Curved - NOTE: This might need a direction check
+    [[[1, 1], [1, 0]], [[0, 0], [0, 1]]], //#5 Curved
     [[[1, 1], [1, 0]], [[0, 0], [1, 0]]], //#6 S-Shape
     [[[1, 1], [0, 1]], [[0, 0], [0, 1]]], //#7 S-Shape reverse
     [[[1, 1], [0, 0]], [[0, 0], [1, 1]]], //#8 Slope
@@ -41,9 +41,7 @@ function buildVertices(shape) {
     let vertices = [];
     let indices = [];
     let normals = [];
-    //WARNING: DEBUG MODE, FIX, ENDS AT -1
     for (let z = 0; z < shape.length - 1; z++) {
-        //WARNING: DEBUG MODE, FIX, ENDS AT -1
         for (let y = 0; y < shape[z].length - 1; y++) {
             for (let x = 0; x < shape[z][y].length - 1; x++) {
                 let v1 = shape[z][y][x];
@@ -80,7 +78,6 @@ function buildVertices(shape) {
                 if (v8 > intensity) {
                     sum++;
                 }
-                //WARNING: DEBUG MODE, FIX, SHOULD SPAN 2-8
                 if (2 < sum && sum < 8) {
                     let a1 = [z, y, x];
                     let a2 = [z, y, (x + 1)];
@@ -99,6 +96,7 @@ function buildVertices(shape) {
                     let xRot = pInfo[3];
 
                     //sP means shapeProperties
+
                     let sP = [];
 
                     switch (pIndex) {
@@ -110,6 +108,9 @@ function buildVertices(shape) {
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            // normals = addNormals(vertices, normals, a1, a2, a3, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a1, a2, a3);
+                            // indices = addIndices(vertices, indices, normals, a1, a3, a2);
                             break;
                         case 1:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
@@ -119,6 +120,9 @@ function buildVertices(shape) {
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            // normals = addNormals(vertices, normals, a1, a2, a7, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a1, a2, a7);
+                            // indices = addIndices(vertices, indices, normals, a1, a2, a7);
                             break;
                         case 2:
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
@@ -128,17 +132,25 @@ function buildVertices(shape) {
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            // normals = addNormals(vertices, normals, a3, a2, a5, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a3, a2, a5);
+                            // indices = addIndices(vertices, indices, normals, a3, a2, a5);
                             break;
                         case 3:
-                            //this is a flat side, might need an update to check direction
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
-                            sP = flatPolygonProperties(vertices, indices, normals, a1, a3, a2, a4);
+                            sP = flatPolygonProperties(vertices, indices, normals, a1, a2, a3, a4);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            // normals = addNormals(vertices, normals, a1, a3, a2, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a1, a2, a3);
+                            // normals = addNormals(vertices, normals, a4, a2, a3, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a2, a3, a4);
+                            // indices = addFlatSideIndices(vertices, indices, normals, a1, a2, a3, a4);
+                            // indices = addFlatSideIndices(vertices, indices, normals, a2, a3, a4, a1);
                             break;
                         case 4:
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
@@ -148,20 +160,21 @@ function buildVertices(shape) {
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            // normals = addNormals(vertices, normals, a3, a2, a5, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a3, a2, a5);
+                            // indices = addIndices(vertices, indices, normals, a3, a2, a5);
                             break;
                         case 5:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a2, a8, a3);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a2, a8, a3);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            // normals = addNormals(vertices, normals, a1, a2, a3, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a1, a2, a3);
+                            // normals = addNormals(vertices, normals, a3, a2, a8, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a3, a2, a8);
+                            // indices = addIndices(vertices, indices, normals, a1, a2, a3);
+                            // indices = addIndices(vertices, indices, normals, a3, a2, a8);
                             break;
                         case 6:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
@@ -176,6 +189,12 @@ function buildVertices(shape) {
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            // normals = addNormals(vertices, normals, a1, a2, a3, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a1, a2, a3);
+                            // normals = addNormals(vertices, normals, a3, a2, a7, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a3, a2, a7);
+                            // indices = addIndices(vertices, indices, normals, a1, a2, a3);
+                            // indices = addIndices(vertices, indices, normals, a3, a2, a7);
                             break;
                         case 7:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
@@ -190,142 +209,133 @@ function buildVertices(shape) {
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            // normals = addNormals(vertices, normals, a1, a2, a4, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a1, a2, a4);
+                            // normals = addNormals(vertices, normals, a4, a1, a8, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a4, a1, a8);
+                            // indices = addIndices(vertices, indices, normals, a1, a2, a4);
+                            // indices = addIndices(vertices, indices, normals, a4, a1, a8);
                             break;
                         case 8:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
                             a7 = fixVerticeRotation(a7, 7, zRot, yRot, xRot);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a1, a7, a2);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a2, a7, a8);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            // normals = addNormals(vertices, normals, a1, a2, a7, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a1, a2, a7);
+                            // normals = addNormals(vertices, normals, a7, a2, a8, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a7, a2, a8);
+                            // indices = addIndices(vertices, indices, normals, a1, a2, a7);
+                            // indices = addIndices(vertices, indices, normals, a7, a2, a8);
                             break;
                         case 9:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
                             a6 = fixVerticeRotation(a6, 6, zRot, yRot, xRot);
                             a7 = fixVerticeRotation(a7, 7, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a1, a6, a4);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a1, a4, a7);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a4, a6, a7);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a1, a7, a6);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            // normals = addNormals(vertices, normals, a1, a4, a7, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a1, a4, a7);
+                            // normals = addNormals(vertices, normals, a7, a4, a6, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a7, a4, a6);
+                            // normals = addNormals(vertices, normals, a1, a4, a6, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a1, a4, a6);
+                            // normals = addNormals(vertices, normals, a1, a7, a6, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a1, a7, a6);
+                            // indices = addIndices(vertices, indices, normals, a1, a4, a7);
+                            // indices = addIndices(vertices, indices, normals, a7, a4, a6);
+                            // indices = addIndices(vertices, indices, normals, a1, a4, a6);
+                            // indices = addIndices(vertices, indices, normals, a1, a7, a6);
                             break;
                         case 10:
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a4, a2, a5);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a3, a4, a5);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            // normals = addNormals(vertices, normals, a2, a4, a5, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a2, a4, a5);
+                            // normals = addNormals(vertices, normals, a5, a4, a3, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a5, a4, a3);
+                            // indices = addIndices(vertices, indices, normals, a2, a4, a5);
+                            // indices = addIndices(vertices, indices, normals, a5, a4, a3);
                             break;
                         case 11:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
                             a6 = fixVerticeRotation(a6, 6, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a1, a3, a6);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a3, a4, a6);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            // normals = addNormals(vertices, normals, a1, a3, a6, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a1, a3, a6);
+                            // normals = addNormals(vertices, normals, a6, a3, a4, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a6, a3, a4);
+                            // indices = addIndices(vertices, indices, normals, a1, a3, a6);
+                            // indices = addIndices(vertices, indices, normals, a6, a3, a4);
                             break;
                         case 12:
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
                             a6 = fixVerticeRotation(a6, 6, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a3, a2, a6);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a3, a6, a5);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            // normals = addNormals(vertices, normals, a2, a3, a6, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a2, a3, a6);
+                            // normals = addNormals(vertices, normals, a6, a3, a5, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a6, a3, a5);
+                            // indices = addIndices(vertices, indices, normals, a2, a3, a6);
+                            // indices = addIndices(vertices, indices, normals, a6, a3, a5);
                             break;
                         case 13:
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a2, a8, a3);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a2, a5, a8);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a3, a8, a5);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            // normals = addNormals(vertices, normals, a2, a3, a8, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a2, a3, a8);
+                            // normals = addNormals(vertices, normals, a8, a2, a5, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a8, a2, a5);
+                            // normals = addNormals(vertices, normals, a8, a5, a3, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a8, a5, a3);
+                            // indices = addIndices(vertices, indices, normals, a2, a3, a8);
+                            // indices = addIndices(vertices, indices, normals, a8, a2, a5);
+                            // indices = addIndices(vertices, indices, normals, a8, a5, a3);
                             break;
                         case 14:
-                            //NOTE - Tricky one, might need to be reviewed
-                            // a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
+                            a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
-                            // a7 = fixVerticeRotation(a7, 7, zRot, yRot, xRot);
+                            a7 = fixVerticeRotation(a7, 7, zRot, yRot, xRot);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a3, a2, a8);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            // normals = addNormals(vertices, normals, a1, a2, a8, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a1, a2, a8);
+                            // normals = addNormals(vertices, normals, a8, a1, a7, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a8, a1, a7);
+                            // normals = addNormals(vertices, normals, a3, a2, a8, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a3, a2, a8);
+                            // indices = addIndices(vertices, indices, normals, a1, a2, a8);
+                            // indices = addIndices(vertices, indices, normals, a8, a1, a7);
+                            // indices = addIndices(vertices, indices, normals, a3, a2, a8);
                             break;
                         case 15:
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
                             a6 = fixVerticeRotation(a6, 6, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a3, a4, a5);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a4, a6, a5);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            // normals = addNormals(vertices, normals, a3, a4, a5, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a3, a4, a5);
+                            // normals = addNormals(vertices, normals, a5, a4, a6, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a5, a4, a6);
+                            // indices = addIndices(vertices, indices, normals, a3, a4, a5);
+                            // indices = addIndices(vertices, indices, normals, a5, a4, a6);
                             break;
                         case 16:
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a2, a5, a8);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a5, a3, a8);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            // normals = addNormals(vertices, normals, a2, a5, a8, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a2, a5, a8);
+                            // normals = addNormals(vertices, normals, a8, a5, a3, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a8, a5, a3);
+                            // indices = addIndices(vertices, indices, normals, a2, a5, a8);
+                            // indices = addIndices(vertices, indices, normals, a8, a5, a3);
                             break;
                         case 17:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
@@ -334,24 +344,21 @@ function buildVertices(shape) {
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
                             a6 = fixVerticeRotation(a6, 6, zRot, yRot, xRot);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a1, a6, a4);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a3, a8, a5);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            // normals = addNormals(vertices, normals, a1, a4, a6, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a1, a4, a6);
+                            // normals = addNormals(vertices, normals, a3, a5, a8, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a3, a5, a8);
+                            // indices = addIndices(vertices, indices, normals, a1, a4, a6);
+                            // indices = addIndices(vertices, indices, normals, a3, a5, a8);
                             break;
                         case 18:
                             // [[[1, 1], [1, 1]], [[1, 1], [1, 0]]], //#18 Empty corner
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
                             a6 = fixVerticeRotation(a6, 6, zRot, yRot, xRot);
                             a7 = fixVerticeRotation(a7, 7, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a4, a6, a7);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            // normals = addNormals(vertices, normals, a4, a6, a7, zRot, yRot, xRot);
+                            // vertices = addVertex(vertices, a4, a6, a7);
+                            // indices = addIndices(vertices, indices, normals, a4, a6, a7);
                             break;
                         default:
                             break;
@@ -365,6 +372,7 @@ function buildVertices(shape) {
     }
     // console.log(vertices);
     // console.log(indices);
+    // normals = getNormals(vertices, indices);
     // console.log(normals);
     normals = adjustNormals(normals, indices, vertices);
     // console.log(normals);
@@ -396,7 +404,7 @@ function polygonProperties(vArray, iArray, nArray, v1, v2, v3) {
     if (!iArray.containsArray([i1, i2, i3]) && !iArray.containsArray([i1, i3, i2]) && !iArray.containsArray([i2, i1, i3]) && !iArray.containsArray([i2, i3, i1]) && !iArray.containsArray([i3, i1, i2]) && !iArray.containsArray([i3, i2, i1])) {
         iArray.push([i1, i2, i3]);
         let n = calculateNormals(v1, v2, v3);
-        // console.log(n);
+        console.log(n);
         nArray[i1] = [nArray[i1][0] + n[0], nArray[i1][1] + n[1], nArray[i1][2] + n[2]];
         nArray[i2] = [nArray[i2][0] + n[0], nArray[i2][1] + n[1], nArray[i2][2] + n[2]];
         nArray[i3] = [nArray[i3][0] + n[0], nArray[i3][1] + n[1], nArray[i3][2] + n[2]];
@@ -405,7 +413,7 @@ function polygonProperties(vArray, iArray, nArray, v1, v2, v3) {
     props.push(vArray);
     props.push(iArray);
     props.push(nArray);
-    // console.log(props);
+    console.log(props);
     return props;
 }
 function flatPolygonProperties(vArray, iArray, nArray, v1, v2, v3, v4) {
@@ -434,6 +442,7 @@ function flatPolygonProperties(vArray, iArray, nArray, v1, v2, v3, v4) {
 
     //Prevents creation of identical polygons, needs to do 6 checks due to 6 different index combinations
     if (
+
         !iArray.containsArray([i1, i2, i3]) && !iArray.containsArray([i1, i3, i2]) &&
         !iArray.containsArray([i2, i1, i3]) && !iArray.containsArray([i2, i3, i1]) &&
         !iArray.containsArray([i3, i1, i2]) && !iArray.containsArray([i3, i2, i1]) &&
@@ -450,7 +459,7 @@ function flatPolygonProperties(vArray, iArray, nArray, v1, v2, v3, v4) {
         iArray.push([i3, i2, i4]);
         let n = calculateNormals(v1, v2, v3);
         let n1 = calculateNormals(v3, v2, v4);
-        // console.log(n);
+        console.log(n);
         nArray[i1] = [nArray[i1][0] + n[0], nArray[i1][1] + n[1], nArray[i1][2] + n[2]];
         nArray[i2] = [nArray[i2][0] + n[0], nArray[i2][1] + n[1], nArray[i2][2] + n[2]];
         nArray[i3] = [nArray[i3][0] + n[0], nArray[i3][1] + n[1], nArray[i3][2] + n[2]];
@@ -463,8 +472,174 @@ function flatPolygonProperties(vArray, iArray, nArray, v1, v2, v3, v4) {
     props.push(vArray);
     props.push(iArray);
     props.push(nArray);
-    // console.log(props);
+    console.log(props);
     return props;
+}
+
+
+function addVertex(vArray, v1, v2, v3) {
+    if (!vArray.containsArray(v1)) {
+        vArray.push(v1);
+    }
+    if (!vArray.containsArray(v2)) {
+        vArray.push(v2);
+    }
+    if (!vArray.containsArray(v3)) {
+        vArray.push(v3);
+    }
+    return vArray;
+}
+function addVertex2(vArray, v1, v2, v3) {
+    vArray.push(v1);
+    vArray.push(v2);
+    vArray.push(v3);
+    return vArray;
+}
+function addNormals(vArray, nArray, v1, v2, v3, zRot, yRot, xRot) {
+    let n = calculateNormals(v1, v2, v3);
+    let i = 0;
+
+    // let nRot = [n[0], n[1], n[2]];
+    // console.log(n);
+    // console.log("Zr: " + zRot + " Yr: " + yRot + " Xr: " + xRot);
+    // switch (zRot) {
+    //     case 1:
+    //         nRot[1] = n[2];
+    //         nRot[2] = -n[1];
+    //         break;
+    //     case 2:
+    //         n[1] = -nRot[1];
+    //         n[2] = -nRot[2];
+    //         break;
+    //     case 3:
+    //         nRot[1] = -n[2];
+    //         nRot[2] = n[1];
+    //         break;
+    //     default:
+    //         break;
+    // }
+    // switch (yRot) {
+    //     case 1:
+    //         nRot[0] = n[2];
+    //         nRot[2] = -n[0];
+    //         break;
+    //     case 2:
+    //         nRot[0] = -nRot[0];
+    //         nRot[2] = -nRot[2];
+    //         break;
+    //     case 3:
+    //         nRot[0] = -n[2];
+    //         nRot[2] = n[0];
+    //         break;
+    //     default:
+    //         break;
+    // }
+    // switch (xRot) {
+    //     case 1:
+    //         nRot[1] = n[0];
+    //         nRot[0] = -n[1];
+    //         break;
+    //     case 2:
+    //         nRot[0] = -nRot[0];
+    //         nRot[1] = -nRot[1];
+    //         break;
+    //     case 3:
+    //         nRot[1] = -n[0];
+    //         nRot[0] = n[1];
+    //         break;
+    //     default:
+    //         break;
+    // }
+    // console.log(nRot);
+
+    // n = [nRot[0], nRot[1], nRot[2]];
+    if (!vArray.containsArray(v1)) {
+        nArray.push(n);
+    }
+    else {
+        i = vArray.indexOfArray(v1);
+        n[0] += nArray[i][0];
+        n[1] += nArray[i][1];
+        n[2] += nArray[i][2];
+        nArray[i] = n;
+    }
+    if (!vArray.containsArray(v2)) {
+        nArray.push(n);
+    }
+    else {
+        i = vArray.indexOfArray(v2);
+        n[0] += nArray[i][0];
+        n[1] += nArray[i][1];
+        n[2] += nArray[i][2];
+        nArray[i] = n;
+    }
+    if (!vArray.containsArray(v3)) {
+        nArray.push(n);
+    }
+    else {
+        i = vArray.indexOfArray(v3);
+        n[0] += nArray[i][0];
+        n[1] += nArray[i][1];
+        n[2] += nArray[i][2];
+        nArray[i] = n;
+    }
+    // console.log(nArray);
+    return nArray;
+}
+function addNormals2(vArray, nArray, v1, v2, v3, zRot, yRot, xRot) {
+    let n = calculateNormals(v1, v2, v3);
+    let i = 0;
+
+    let nRot = [n[0], n[1], n[2]];
+
+    n = [nRot[0], nRot[1], nRot[2]];
+    if (!vArray.containsArray(v1)) {
+        nArray.push(n);
+    }
+    else {
+        i = vArray.indexOfArray(v1);
+        n[0] += nArray[i][0];
+        n[1] += nArray[i][1];
+        n[2] += nArray[i][2];
+        nArray[i] = n;
+    }
+    if (!vArray.containsArray(v2)) {
+        nArray.push(n);
+    }
+    else {
+        i = vArray.indexOfArray(v2);
+        n[0] += nArray[i][0];
+        n[1] += nArray[i][1];
+        n[2] += nArray[i][2];
+        nArray[i] = n;
+    }
+    if (!vArray.containsArray(v3)) {
+        nArray.push(n);
+    }
+    else {
+        i = vArray.indexOfArray(v3);
+        n[0] += nArray[i][0];
+        n[1] += nArray[i][1];
+        n[2] += nArray[i][2];
+        nArray[i] = n;
+    }
+    // console.log(nArray);
+    return nArray;
+}
+function getNormals(vArray, iArray) {
+    let nArray = [];
+    for (let i = 0; i < iArray.length; i++) {
+        let i1 = iArray[i][0];
+        let i2 = iArray[i][1];
+        let i3 = iArray[i][2];
+
+        let v1 = vArray[i1];
+        let v2 = vArray[i2];
+        let v3 = vArray[i3];
+
+        nArray = addNormals2(vArray, nArray, v1, v2, v3);
+    }
+    return nArray;
 }
 
 //####################################################################
@@ -514,6 +689,48 @@ function adjustNormals(nArray, iArray, vArray) {
         // console.log(usageCount);
     }
     return nA;
+}
+function addIndices(vArray, iArray, nArray, v1, v2, v3) {
+    let i1 = vArray.indexOfArray(v1);
+    let i2 = vArray.indexOfArray(v2);
+    let i3 = vArray.indexOfArray(v3);
+    //Prevents creation of identical polygons, needs to do 6 checks due to 6 different index combinations
+    if (!iArray.containsArray([i1, i2, i3]) && !iArray.containsArray([i1, i3, i2]) && !iArray.containsArray([i2, i1, i3]) && !iArray.containsArray([i2, i3, i1]) && !iArray.containsArray([i3, i1, i2]) && !iArray.containsArray([i3, i2, i1])) {
+        iArray.push([i1, i2, i3]);
+    }
+    // else {
+    //     console.log("index dupe found");
+    // }
+    return iArray;
+}
+
+//Special function for a flatsided polygon, prevents overlapping
+
+function addFlatSideIndices(vArray, iArray, nArray, v1, v2, v3, v4) {
+    let i1 = vArray.indexOfArray(v1);
+    let i2 = vArray.indexOfArray(v2);
+    let i3 = vArray.indexOfArray(v3);
+    let i4 = vArray.indexOfArray(v4);
+
+    if (
+        !iArray.containsArray([i1, i2, i3]) && !iArray.containsArray([i1, i3, i2]) &&
+        !iArray.containsArray([i2, i1, i3]) && !iArray.containsArray([i2, i3, i1]) &&
+        !iArray.containsArray([i3, i1, i2]) && !iArray.containsArray([i3, i2, i1]) &&
+
+        !iArray.containsArray([i1, i2, i4]) && !iArray.containsArray([i1, i4, i2]) &&
+        !iArray.containsArray([i2, i1, i4]) && !iArray.containsArray([i2, i4, i1]) &&
+        !iArray.containsArray([i4, i1, i2]) && !iArray.containsArray([i4, i2, i1]) &&
+
+        !iArray.containsArray([i1, i3, i4]) && !iArray.containsArray([i1, i4, i3]) &&
+        !iArray.containsArray([i3, i1, i4]) && !iArray.containsArray([i3, i4, i1]) &&
+        !iArray.containsArray([i4, i1, i3]) && !iArray.containsArray([i4, i3, i1])
+    ) {
+        iArray.push([i1, i2, i3]);
+    }
+    // else {
+    //     console.log("index dupe/overlap found");
+    // }
+    return iArray;
 }
 
 
@@ -789,6 +1006,8 @@ function fixVerticeRotation(vertex, p, zRot, yRot, xRot) { //p for position: 1-8
     }
     return vertex;
 }
+
+
 //Junk functions, delete later
 
 function possibleOutcomes() {
