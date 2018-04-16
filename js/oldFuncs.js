@@ -634,3 +634,65 @@ function addFlatSideIndices(vArray, iArray, nArray, v1, v2, v3, v4) {
     // }
     return iArray;
 }
+//Junk functions, delete later
+
+function possibleOutcomes() {
+    let counter = 0;
+    for (let a0 = 0; a0 < 2; a0++) {
+        for (let a1 = 0; a1 < 2; a1++) {
+            for (let a2 = 0; a2 < 2; a2++) {
+                for (let a3 = 0; a3 < 2; a3++) {
+                    for (let a4 = 0; a4 < 2; a4++) {
+                        for (let a5 = 0; a5 < 2; a5++) {
+                            for (let a6 = 0; a6 < 2; a6++) {
+                                for (let a7 = 0; a7 < 2; a7++) {
+                                    if (a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 > 2 && a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 < 6) {
+                                        counter++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    console.log(counter);
+}
+// possibleOutcomes();
+function mCube(shape, z, y, x) {
+    let x0 = shape[z][y][x];
+    let x1 = shape[z][y][x - 1];
+    let x2 = shape[z][y][x + 1];
+    let y1 = shape[z][y - 1][x];
+    let y2 = shape[z][y + 1][x];
+    let z1 = shape[z - 1][y][x];
+    let z2 = shape[z + 2][y][x];
+}
+function adjustNormals(nArray, iArray, vArray) {
+    let nA = [];
+    for (let i = 0; i < nArray.length; i++) {
+        // let usageCount = 0;
+        // for (let j = 0; j < iArray.length; j++) {
+        //     for (let k = 0; k < iArray[j].length; k++) {
+        //         if (iArray[j][k] === i) {
+        //             usageCount++;
+        //         }
+        //     }
+        // }
+        // let n1 = nArray[i][0] / usageCount;
+        // let n2 = nArray[i][1] / usageCount;
+        // let n3 = nArray[i][2] / usageCount;
+        // let n1 = nArray[i][0];
+        // let n2 = nArray[i][1];
+        // let n3 = nArray[i][2];
+        // n1 = n1 / (Math.tangent3d(n1, n2, n3));
+        // n2 = n2 / (Math.tangent3d(n1, n2, n3));
+        // n3 = n3 / (Math.tangent3d(n1, n2, n3));
+        // nA.push([n1, n2, n3]);
+        // console.log(usageCount);
+        let n = Math.unitVector(nArray[0], nArray[1], nArray[2]);
+        nA.push(n);
+    }
+    return nA;
+}

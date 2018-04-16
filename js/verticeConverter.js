@@ -1,7 +1,7 @@
 //List of types of pieces
 let pieceList = [
     // 3
-    [[[1, 1], [1, 0]], [[0, 0], [0, 0]]], //#0 Flat side
+    [[[1, 1], [1, 0]], [[0, 0], [0, 0]]], //#0 Flat side - Single triangle
     [[[1, 1], [0, 0]], [[0, 0], [1, 0]]], //#1 Single Diagonal
     [[[0, 1], [1, 0]], [[1, 0], [0, 0]]], //#2 Double Diagonal
     // 4
@@ -12,7 +12,7 @@ let pieceList = [
     [[[1, 1], [0, 1]], [[0, 0], [0, 1]]], //#7 S-Shape reverse
     [[[1, 1], [0, 0]], [[0, 0], [1, 1]]], //#8 Slope
     [[[1, 0], [0, 1]], [[0, 1], [1, 0]]], //#9 V-shape/3-corner Pyramid
-    // 5 - All 5s are inverse of 3s
+    // 5
     [[[1, 1], [1, 1]], [[1, 0], [0, 0]]], //#10 Flat with one extra
     [[[1, 1], [1, 1]], [[0, 1], [0, 0]]], //#11 Flat with one extra - mirrored
     [[[1, 1], [1, 0]], [[1, 1], [0, 0]]], //#12 Corner and Line, inverse Single Diagonal polygon
@@ -26,8 +26,6 @@ let pieceList = [
     [[[1, 1], [1, 1]], [[1, 1], [1, 0]]], //#18 Empty corner
 ];
 
-// filters for intensity
-let intensity = 0;
 
 //####################################################################
 //  Main functions
@@ -37,13 +35,26 @@ let intensity = 0;
 //  Create Polygons
 //####################################################################
 
-function buildVertices(shape) {
+
+function buildVertices(shape, intensityLimit) {
+    console.log("Building vertices: Start");
+    // filters for intensity
+    let intensityMin = intensityLimit || 0;
+
     let vertices = [];
     let indices = [];
     let normals = [];
-    //WARNING: DEBUG MODE, FIX, ENDS AT -1
+
+    let intensities = [];
+    let vertexLayerPrevious = [];
+    let indexLayerPrevious = [];
+    //WARNING: DEBUG MODE, FIX if !ENDS AT -1
     for (let z = 0; z < shape.length - 1; z++) {
-        //WARNING: DEBUG MODE, FIX, ENDS AT -1
+        let vertexLayerCurrent = [];
+        let indexLayerCurrent = [];
+        let normalsLayer = [];
+        let intensityLayer = [];
+        //WARNING: DEBUG MODE, FIX if !ENDS AT -1
         for (let y = 0; y < shape[z].length - 1; y++) {
             for (let x = 0; x < shape[z][y].length - 1; x++) {
                 let v1 = shape[z][y][x];
@@ -56,31 +67,31 @@ function buildVertices(shape) {
                 let v8 = shape[z + 1][y + 1][x + 1];
 
                 let sum = 0;
-                if (v1 > intensity) {
+                if (v1 > intensityMin) {
                     sum++;
                 }
-                if (v2 > intensity) {
+                if (v2 > intensityMin) {
                     sum++;
                 }
-                if (v3 > intensity) {
+                if (v3 > intensityMin) {
                     sum++;
                 }
-                if (v4 > intensity) {
+                if (v4 > intensityMin) {
                     sum++;
                 }
-                if (v5 > intensity) {
+                if (v5 > intensityMin) {
                     sum++;
                 }
-                if (v6 > intensity) {
+                if (v6 > intensityMin) {
                     sum++;
                 }
-                if (v7 > intensity) {
+                if (v7 > intensityMin) {
                     sum++;
                 }
-                if (v8 > intensity) {
+                if (v8 > intensityMin) {
                     sum++;
                 }
-                //WARNING: DEBUG MODE, FIX, SHOULD SPAN 2-8
+                //WARNING: DEBUG MODE, FIX if !SPAN 2-8
                 if (2 < sum && sum < 8) {
                     let a1 = [z, y, x];
                     let a2 = [z, y, (x + 1)];
@@ -104,288 +115,469 @@ function buildVertices(shape) {
                     switch (pIndex) {
                         case 0:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
+                            a1.push(shape[a1[0]][a1[1]][a1[2]]);
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a1, a3, a2);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a1, a3, a2);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
+                            // sP = polygonProperties(vertexLayerCurrent, indexLayerCurrent, normalsLayer, intensityLayer, a1, a3, a2);
+                            // vertexLayerCurrent = sP[0];
+                            // indexLayerCurrent = sP[1];
+                            // normalsLayer = sP[2];
+                            // intensityLayer = sP[3];
                             break;
                         case 1:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
+                            a1.push(shape[a1[0]][a1[1]][a1[2]]);
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a7 = fixVerticeRotation(a7, 7, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a1, a7, a2);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            a7.push(shape[a7[0]][a7[1]][a7[2]]);
+                            // sP = polygonProperties(vertices, indices, normals, intensities, a1, a7, a2);
+                            // vertices = sP[0];
+                            // indices = sP[1];
+                            // normals = sP[2];
+                            // intensities = sP[3];
+                            sP = polygonProperties(vertexLayerCurrent, indexLayerCurrent, normalsLayer, intensityLayer, a1, a7, a2);
+                            vertexLayerCurrent = sP[0];
+                            indexLayerCurrent = sP[1];
+                            normalsLayer = sP[2];
+                            intensityLayer = sP[3];
                             break;
                         case 2:
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a2, a5, a3);
-                            vertices = sP[0];
-                            indices = sP[1];
-                            normals = sP[2];
+                            a5.push(shape[a5[0]][a5[1]][a5[2]]);
+                            // sP = polygonProperties(vertices, indices, normals, intensities, a2, a5, a3);
+                            // vertices = sP[0];
+                            // indices = sP[1];
+                            // normals = sP[2];
+                            // intensities = sP[3];
+                            sP = polygonProperties(vertexLayerCurrent, indexLayerCurrent, normalsLayer, intensityLayer, a2, a5, a3);
+                            vertexLayerCurrent = sP[0];
+                            indexLayerCurrent = sP[1];
+                            normalsLayer = sP[2];
+                            intensityLayer = sP[3];
                             break;
                         case 3:
                             //this is a flat side, might need an update to check direction
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
+                            a1.push(shape[a1[0]][a1[1]][a1[2]]);
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
-                            sP = flatPolygonProperties(vertices, indices, normals, a1, a3, a2, a4);
+                            a4.push(shape[a4[0]][a4[1]][a4[2]]);
+                            sP = flatPolygonProperties(vertices, indices, normals, intensities, a1, a3, a2, a4);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 4:
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a2, a5, a3);
+                            a5.push(shape[a5[0]][a5[1]][a5[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a5, a3);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 5:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
+                            a1.push(shape[a1[0]][a1[1]][a1[2]]);
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a2, a8, a3);
+                            a8.push(shape[a8[0]][a8[1]][a8[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a1, a8);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a2, a8, a3);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a8, a3);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a1, a3, a8);
+                            vertices = sP[0];
+                            indices = sP[1];
+                            normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 6:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
+                            a1.push(shape[a1[0]][a1[1]][a1[2]]);
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
                             a7 = fixVerticeRotation(a7, 7, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a2, a1, a7);
+                            a7.push(shape[a7[0]][a7[1]][a7[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a1, a7);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a2, a7, a3);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a7, a3);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 7:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
+                            a1.push(shape[a1[0]][a1[1]][a1[2]]);
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
+                            a4.push(shape[a4[0]][a4[1]][a4[2]]);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a1, a4, a8);
+                            a8.push(shape[a8[0]][a8[1]][a8[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a1, a4, a8);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a1, a8, a2);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a1, a8, a2);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 8:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
+                            a1.push(shape[a1[0]][a1[1]][a1[2]]);
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a7 = fixVerticeRotation(a7, 7, zRot, yRot, xRot);
+                            a7.push(shape[a7[0]][a7[1]][a7[2]]);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a1, a7, a2);
+                            a8.push(shape[a8[0]][a8[1]][a8[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a1, a7, a2);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a2, a7, a8);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a7, a8);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 9:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
+                            a1.push(shape[a1[0]][a1[1]][a1[2]]);
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
+                            a4.push(shape[a4[0]][a4[1]][a4[2]]);
                             a6 = fixVerticeRotation(a6, 6, zRot, yRot, xRot);
+                            a6.push(shape[a6[0]][a6[1]][a6[2]]);
                             a7 = fixVerticeRotation(a7, 7, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a1, a6, a4);
+                            a7.push(shape[a7[0]][a7[1]][a7[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a1, a6, a4);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a1, a4, a7);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a1, a4, a7);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a4, a6, a7);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a4, a6, a7);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a1, a7, a6);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a1, a7, a6);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 10:
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
+                            a4.push(shape[a4[0]][a4[1]][a4[2]]);
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a4, a2, a5);
+                            a5.push(shape[a5[0]][a5[1]][a5[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a3, a4);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a3, a4, a5);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a3, a2, a5);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 11:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
+                            a1.push(shape[a1[0]][a1[1]][a1[2]]);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
+                            a4.push(shape[a4[0]][a4[1]][a4[2]]);
                             a6 = fixVerticeRotation(a6, 6, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a1, a3, a6);
+                            a6.push(shape[a6[0]][a6[1]][a6[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a1, a3, a4);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a3, a4, a6);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a1, a4, a6);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 12:
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
+                            a5.push(shape[a5[0]][a5[1]][a5[2]]);
                             a6 = fixVerticeRotation(a6, 6, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a3, a2, a6);
+                            a6.push(shape[a6[0]][a6[1]][a6[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a5, a3);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a3, a6, a5);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a6, a5);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 13:
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
+                            a5.push(shape[a5[0]][a5[1]][a5[2]]);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a2, a8, a3);
+                            a8.push(shape[a8[0]][a8[1]][a8[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a8, a3);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a2, a5, a8);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a5, a8);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a3, a8, a5);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a3, a8, a5);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 14:
                             //NOTE - Tricky one, might need to be reviewed
-                            // a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
+                            a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
+                            a1.push(shape[a1[0]][a1[1]][a1[2]]);
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
-                            // a7 = fixVerticeRotation(a7, 7, zRot, yRot, xRot);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
+                            a7 = fixVerticeRotation(a7, 7, zRot, yRot, xRot);
+                            a7.push(shape[a7[0]][a7[1]][a7[2]]);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a3, a2, a8);
+                            a8.push(shape[a8[0]][a8[1]][a8[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a3, a2, a8);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a1, a7);
+                            vertices = sP[0];
+                            indices = sP[1];
+                            normals = sP[2];
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a7, a8);
+                            vertices = sP[0];
+                            indices = sP[1];
+                            normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 15:
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
+                            a4.push(shape[a4[0]][a4[1]][a4[2]]);
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
+                            a5.push(shape[a5[0]][a5[1]][a5[2]]);
                             a6 = fixVerticeRotation(a6, 6, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a3, a4, a5);
+                            a6.push(shape[a6[0]][a6[1]][a6[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a3, a4, a5);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a4, a6, a5);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a4, a6, a5);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 16:
                             a2 = fixVerticeRotation(a2, 2, zRot, yRot, xRot);
+                            a2.push(shape[a2[0]][a2[1]][a2[2]]);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
+                            a5.push(shape[a5[0]][a5[1]][a5[2]]);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a2, a5, a8);
+                            a8.push(shape[a8[0]][a8[1]][a8[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a2, a5, a8);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a5, a3, a8);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a5, a3, a8);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 17:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
+                            a1.push(shape[a1[0]][a1[1]][a1[2]]);
                             a3 = fixVerticeRotation(a3, 3, zRot, yRot, xRot);
+                            a3.push(shape[a3[0]][a3[1]][a3[2]]);
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
+                            a4.push(shape[a4[0]][a4[1]][a4[2]]);
                             a5 = fixVerticeRotation(a5, 5, zRot, yRot, xRot);
+                            a5.push(shape[a5[0]][a5[1]][a5[2]]);
                             a6 = fixVerticeRotation(a6, 6, zRot, yRot, xRot);
+                            a6.push(shape[a6[0]][a6[1]][a6[2]]);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a1, a6, a4);
+                            a8.push(shape[a8[0]][a8[1]][a8[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a1, a6, a4);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
-                            sP = polygonProperties(vertices, indices, normals, a3, a8, a5);
+                            intensities = sP[3];
+                            sP = polygonProperties(vertices, indices, normals, intensities, a3, a8, a5);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         case 18:
                             // [[[1, 1], [1, 1]], [[1, 1], [1, 0]]], //#18 Empty corner
                             a4 = fixVerticeRotation(a4, 4, zRot, yRot, xRot);
+                            a4.push(shape[a4[0]][a4[1]][a4[2]]);
                             a6 = fixVerticeRotation(a6, 6, zRot, yRot, xRot);
+                            a6.push(shape[a6[0]][a6[1]][a6[2]]);
                             a7 = fixVerticeRotation(a7, 7, zRot, yRot, xRot);
-                            sP = polygonProperties(vertices, indices, normals, a4, a6, a7);
+                            a7.push(shape[a7[0]][a7[1]][a7[2]]);
+                            sP = polygonProperties(vertices, indices, normals, intensities, a4, a6, a7);
                             vertices = sP[0];
                             indices = sP[1];
                             normals = sP[2];
+                            intensities = sP[3];
                             break;
                         default:
                             break;
                     }
                 }
-                // progressText.innerHTML = (z / shape.length) * 100 + (y / shape.length) * 100 + (x / shape.length) * 100 + "%";
             }
-            // progressText.innerHTML = (z / shape.length) * 100 + "%";
         }
-        // document.getElementById("progressText").innerHTML = (z / (shape.length - 2)) * 100 + "%";
+
+        // Add current layer to main array
+        for (let i = 0; i < vertexLayerCurrent.length; i++) {
+            console.log(vertexLayerPrevious);
+            console.log(vertexLayerCurrent[i]);
+            console.log(vertexLayerPrevious.containsArray(vertexLayerCurrent[i]));
+            if (!vertexLayerPrevious.containsArray(vertexLayerCurrent[i])) {
+                vertices.push(vertexLayerCurrent[i]);
+                normals.push(normalsLayer[i]);
+                intensities.push(intensityLayer[i]);
+            }
+        }
+        for (let i = 0; i < indexLayerCurrent.length; i++) {
+            if (!indexLayerPrevious.containsArray(indexLayerCurrent[i])) {
+                console.log(indexLayerCurrent[i]);
+                indices.push(indexLayerCurrent[i]);
+            }
+        }
+
+        // Updates previous layer
+        vertexLayerPrevious = [];
+        for (let i = 0; i < vertexLayerCurrent.length; i++) {
+            vertexLayerPrevious.push(vertexLayerCurrent[i]);
+        }
+        indexLayerPrevious = [];
+        for (let i = 0; i < indexLayerCurrent.length; i++) {
+            indexLayerPrevious.push(indexLayerCurrent[i]);
+        }
+        console.log(vertexLayerPrevious);
+        console.log(indexLayerPrevious);
+        console.log(("Vertices: " + z / (shape.length - 2) * 100) + "%");
     }
+    console.log("Building vertices: Done");
+    console.log(vertices);
+    console.log(indices);
+    console.log(normals);
+    console.log(intensities);
+
+    normals = setNormals(vertices, indices, normals);
+    // vertices = shapeSmoothing(vertices, normals, intensities);
+    // normals = setNormals(vertices, indices, normals);
+
     // console.log(vertices);
-    // console.log(indices);
-    // console.log(normals);
-    normals = adjustNormals(normals, indices, vertices);
     // console.log(normals);
     // console.log(vertices.length);
     // console.log(indices);
     return [vertices, indices, normals];
 }
-
-function polygonProperties(vArray, iArray, nArray, v1, v2, v3) {
+function polygonProperties(vArray, iArray, nArray, intensities, vt1, vt2, vt3) {
     let props = [];
+
+    //Filters out Intensity value
+    let v1 = [vt1[0], vt1[1], vt1[2]];
+    let v2 = [vt2[0], vt2[1], vt2[2]];
+    let v3 = [vt3[0], vt3[1], vt3[2]];
+
     if (!vArray.containsArray(v1)) {
         vArray.push(v1);
         nArray.push([0, 0, 0]);
+        intensities.push(vt1[3]);
     }
     if (!vArray.containsArray(v2)) {
         vArray.push(v2);
         nArray.push([0, 0, 0]);
+        intensities.push(vt2[3]);
     }
     if (!vArray.containsArray(v3)) {
         vArray.push(v3);
         nArray.push([0, 0, 0]);
+        intensities.push(vt3[3]);
     }
 
     let i1 = vArray.indexOfArray(v1);
@@ -395,36 +587,44 @@ function polygonProperties(vArray, iArray, nArray, v1, v2, v3) {
     //Prevents creation of identical polygons, needs to do 6 checks due to 6 different index combinations
     if (!iArray.containsArray([i1, i2, i3]) && !iArray.containsArray([i1, i3, i2]) && !iArray.containsArray([i2, i1, i3]) && !iArray.containsArray([i2, i3, i1]) && !iArray.containsArray([i3, i1, i2]) && !iArray.containsArray([i3, i2, i1])) {
         iArray.push([i1, i2, i3]);
-        let n = calculateNormals(v1, v2, v3);
-        // console.log(n);
-        nArray[i1] = [nArray[i1][0] + n[0], nArray[i1][1] + n[1], nArray[i1][2] + n[2]];
-        nArray[i2] = [nArray[i2][0] + n[0], nArray[i2][1] + n[1], nArray[i2][2] + n[2]];
-        nArray[i3] = [nArray[i3][0] + n[0], nArray[i3][1] + n[1], nArray[i3][2] + n[2]];
     }
 
     props.push(vArray);
     props.push(iArray);
     props.push(nArray);
+    props.push(intensities);
     // console.log(props);
     return props;
 }
-function flatPolygonProperties(vArray, iArray, nArray, v1, v2, v3, v4) {
+function flatPolygonProperties(vArray, iArray, nArray, intensities, vt1, vt2, vt3, vt4) {
     let props = [];
+
+    //Filters out Intensity value
+    let v1 = [vt1[0], vt1[1], vt1[2]];
+    let v2 = [vt2[0], vt2[1], vt2[2]];
+    let v3 = [vt3[0], vt3[1], vt3[2]];
+    let v4 = [vt4[0], vt4[1], vt4[2]];
+
     if (!vArray.containsArray(v1)) {
         vArray.push(v1);
         nArray.push([0, 0, 0]);
+        intensities.push(vt1[3]);
     }
     if (!vArray.containsArray(v2)) {
         vArray.push(v2);
         nArray.push([0, 0, 0]);
+        intensities.push(vt2[3]);
     }
     if (!vArray.containsArray(v3)) {
         vArray.push(v3);
         nArray.push([0, 0, 0]);
+
+        intensities.push(vt3[3]);
     }
     if (!vArray.containsArray(v4)) {
         vArray.push(v4);
         nArray.push([0, 0, 0]);
+        intensities.push(vt4[3]);
     }
 
     let i1 = vArray.indexOfArray(v1);
@@ -432,7 +632,7 @@ function flatPolygonProperties(vArray, iArray, nArray, v1, v2, v3, v4) {
     let i3 = vArray.indexOfArray(v3);
     let i4 = vArray.indexOfArray(v4);
 
-    //Prevents creation of identical polygons, needs to do 6 checks due to 6 different index combinations
+    //Prevents creation of identical polygons, needs to do 18 checks due to 18 different index combinations
     if (
         !iArray.containsArray([i1, i2, i3]) && !iArray.containsArray([i1, i3, i2]) &&
         !iArray.containsArray([i2, i1, i3]) && !iArray.containsArray([i2, i3, i1]) &&
@@ -448,72 +648,150 @@ function flatPolygonProperties(vArray, iArray, nArray, v1, v2, v3, v4) {
     ) {
         iArray.push([i1, i2, i3]);
         iArray.push([i3, i2, i4]);
-        let n = calculateNormals(v1, v2, v3);
-        let n1 = calculateNormals(v3, v2, v4);
-        // console.log(n);
-        nArray[i1] = [nArray[i1][0] + n[0], nArray[i1][1] + n[1], nArray[i1][2] + n[2]];
-        nArray[i2] = [nArray[i2][0] + n[0], nArray[i2][1] + n[1], nArray[i2][2] + n[2]];
-        nArray[i3] = [nArray[i3][0] + n[0], nArray[i3][1] + n[1], nArray[i3][2] + n[2]];
-
-        nArray[i2] = [nArray[i1][0] + n[0], nArray[i1][1] + n[1], nArray[i1][2] + n[2]];
-        nArray[i3] = [nArray[i2][0] + n[0], nArray[i2][1] + n[1], nArray[i2][2] + n[2]];
-        nArray[i4] = [nArray[i3][0] + n[0], nArray[i3][1] + n[1], nArray[i3][2] + n[2]];
     }
 
     props.push(vArray);
     props.push(iArray);
     props.push(nArray);
+    props.push(intensities);
     // console.log(props);
     return props;
 }
+function setNormals(vArray, iArray, nArray) {
+    console.log("Setting Normals: Start");
+    for (let i = 0; i < vArray.length; i++) {
+        let vertexNormalsRaw = [];
+        for (let j = 0; j < iArray.length; j++) {
+            for (let k = 0; k < iArray[j].length; k++) {
+                if (iArray[j][k] === i) {
+                    let v1 = vArray[iArray[j][0]];
+                    let v2 = vArray[iArray[j][1]];
+                    let v3 = vArray[iArray[j][2]];
+                    let n = calculateNormals(v1, v2, v3);
+                    // console.log(n);
+                    vertexNormalsRaw.push(n);
 
+
+                    // let nCalc = [
+                    //     nArray[i][0] + n[0],
+                    //     nArray[i][1] + n[1],
+                    //     nArray[i][2] + n[2]
+                    // ];
+                    // nArray[i] = Math.unitVector(nCalc[0], nCalc[1], nCalc[2]);
+                }
+            }
+        }
+
+        // Remove duplicate normals
+        let vertexNormalsFormated = [];
+        for (let x = 0; x < vertexNormalsRaw.length; x++) {
+            if (!vertexNormalsFormated.containsArray(vertexNormalsRaw[x])) {
+                vertexNormalsFormated.push(vertexNormalsRaw[x]);
+            }
+        }
+        // console.log(vertexNormalsRaw);
+        // console.log(vertexNormalsFormated);
+
+        // Add normals together
+        let vertexNormalSum = [0, 0, 0];
+        for (let x = 0; x < vertexNormalsFormated.length; x++) {
+            vertexNormalSum[0] = vertexNormalSum[0] + vertexNormalsFormated[x][0];
+            vertexNormalSum[1] = vertexNormalSum[1] + vertexNormalsFormated[x][1];
+            vertexNormalSum[2] = vertexNormalSum[2] + vertexNormalsFormated[x][2];
+        }
+        // console.log(vertexNormalSum);
+
+        // Calculate Normal to Unit Vector
+        nArray[i] = Math.unitVector(vertexNormalSum[0], vertexNormalSum[1], vertexNormalSum[2]);
+        // console.log("Normals: " + (i / (vArray.length - 1) * 100 + "%"));
+    }
+    console.log("Setting Normals: Done");
+    // console.log(vArray);
+    // console.log(iArray);
+    // console.log(nArray);
+    return nArray;
+}
 //####################################################################
 //  Calculates Normals
 //####################################################################
-function calculateNormals(a, c, b) {
+function calculateNormals(a, b, c) {
+    // (a, b, c)
 
     //Calculate vector
-    let vAC = [a[2] - c[2], a[1] - c[1], a[0] - c[0]];
-    let vBC = [b[2] - c[2], b[1] - c[1], b[0] - c[0]];
+    let vAB = [
+        a[2] - b[2],
+        a[1] - b[1],
+        a[0] - b[0]
+    ];
+    let vCB = [
+        c[2] - b[2],
+        c[1] - b[1],
+        c[0] - b[0]
+    ];
 
     //Polygon Normal
-    let n = Math.cross(vAC, vBC);
+    let n = Math.cross(vAB, vCB);
     // console.log(n);
 
     //Normal Length Adjustment
     let x = [];
-    // let n1 = n[0];
-    // let n2 = n[1];
-    // let n3 = n[2];
-    let n1 = n[0] / (Math.tangent3d(n[0], n[1], n[2]));
-    let n2 = n[1] / (Math.tangent3d(n[0], n[1], n[2]));
-    let n3 = n[2] / (Math.tangent3d(n[0], n[1], n[2]));
+    let n1 = n[0];
+    let n2 = n[1];
+    let n3 = n[2];
+    // let n1 = n[0] / (Math.tangent3d(n[0], n[1], n[2]));
+    // let n2 = n[1] / (Math.tangent3d(n[0], n[1], n[2]));
+    // let n3 = n[2] / (Math.tangent3d(n[0], n[1], n[2]));
     x.push(n1);
     x.push(n2);
     x.push(n3);
     return x;
 }
-function adjustNormals(nArray, iArray, vArray) {
-    let nA = [];
-    for (let i = 0; i < nArray.length; i++) {
-        let usageCount = 0;
-        for (let j = 0; j < iArray.length; j++) {
-            for (let k = 0; k < iArray[j].length; k++) {
-                if (iArray[j][k] === i) {
-                    usageCount++
-                }
-            }
-        }
-        let n1 = nArray[i][0] / usageCount;
-        let n2 = nArray[i][1] / usageCount;
-        let n3 = nArray[i][2] / usageCount;
-        n1 = n1 / (Math.tangent3d(n1, n2, n3));
-        n2 = n2 / (Math.tangent3d(n1, n2, n3));
-        n3 = n3 / (Math.tangent3d(n1, n2, n3));
-        nA.push([n1, n2, n3]);
-        // console.log(usageCount);
+
+//####################################################################
+//  Smoothing Functions
+//####################################################################
+
+function shapeSmoothing(vArray, nArray, intensities) {
+    // for (let i = 0; i < vArray.length; i++) {
+    //     if (intensities[i] > 0.15) {
+    //         console.log(vArray[i]);
+    //         console.log(nArray[i]);
+    //         console.log(intensities[i]);
+    //     }
+    // }
+
+    let nVArray = []
+
+    console.log(intensities);
+    for (let i = 0; i < vArray.length; i++) {
+        let intensity = intensities[i];
+
+        // vArray[i][0] = vArray[i][0] - (nArray[i][0] * (1 - intensity));
+        // vArray[i][1] = vArray[i][1] - (nArray[i][1] * (1 - intensity));
+        // vArray[i][2] = vArray[i][2] - (nArray[i][2] * (1 - intensity));
+
+        //full adjust
+        // nVArray.push([
+        //     vArray[i][0] + ((nArray[i][2] * (1 - intensity))),
+        //     vArray[i][1] + ((nArray[i][1] * (1 - intensity))),
+        //     vArray[i][2] + ((nArray[i][0] * (1 - intensity)))
+        // ]);
+
+        //half adjust
+        nVArray.push([
+            vArray[i][0] + ((nArray[i][2] * (1 - intensity)) / 2),
+            vArray[i][1] + ((nArray[i][1] * (1 - intensity)) / 2),
+            vArray[i][2] + ((nArray[i][0] * (1 - intensity)) / 2)
+        ]);
+
+        //test adjust
+        // nVArray.push([
+        //     vArray[i][0] + nArray[i][2],
+        //     vArray[i][1] + nArray[i][1],
+        //     vArray[i][2] + nArray[i][0]
+        // ]);
     }
-    return nA;
+    return nVArray;
 }
 
 
@@ -573,7 +851,6 @@ function analysePiece(piece) {
     // //It shouldnt come to this, but we have it just in case
     return -1;
 }
-
 function checkPiece(piece) {
     for (let i = 0; i < pieceList.length; i++) {
         if (comparePieces(piece, pieceList[i])) {
@@ -582,7 +859,6 @@ function checkPiece(piece) {
     }
     return -1;
 }
-
 function comparePieces(p1, p2) {
     let matches = 0;
     for (let z = 0; z < 2; z++) {
@@ -664,11 +940,6 @@ function rotatePieceX(piece) {
     return rotatedPiece;
 }
 function fixVerticeRotation(vertex, p, zRot, yRot, xRot) { //p for position: 1-8
-    // let vstr = "vertex:  z:" + vertex[0] + " y:" + vertex[1] + " x:" + vertex[2];
-    // // console.log(vstr);
-    // let str = "Rotation: z:" + zRot + " y:" + yRot + " x:" + xRot;
-    // console.log(str);
-
     //NOTE: Reversing rotation is done in opposite order of original rotation
     //Original rotation is: z then y then x
     //Reverse is: x then y then z
@@ -789,40 +1060,71 @@ function fixVerticeRotation(vertex, p, zRot, yRot, xRot) { //p for position: 1-8
     }
     return vertex;
 }
-//Junk functions, delete later
 
-function possibleOutcomes() {
-    let counter = 0;
-    for (let a0 = 0; a0 < 2; a0++) {
-        for (let a1 = 0; a1 < 2; a1++) {
-            for (let a2 = 0; a2 < 2; a2++) {
-                for (let a3 = 0; a3 < 2; a3++) {
-                    for (let a4 = 0; a4 < 2; a4++) {
-                        for (let a5 = 0; a5 < 2; a5++) {
-                            for (let a6 = 0; a6 < 2; a6++) {
-                                for (let a7 = 0; a7 < 2; a7++) {
-                                    if (a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 > 2 && a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7 < 6) {
-                                        counter++;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+//####################################################################
+//  Writes Wavefront .obj File
+//####################################################################
+
+function writeObjFile(vertices, indices, normals) {
+    let objString = "";
+    for (let i = 0; i < vertices.length; i++) {
+        let v1 = vertices[i][0];
+        let v2 = vertices[i][1];
+        let v3 = vertices[i][2];
+        objString += "v " + v1 + " " + v2 + " " + v3 + "\n";
     }
-    console.log(counter);
+    objString += "\n ";
+    for (let k = 0; k < normals.length; k++) {
+        let n1 = normals[k][0];
+        let n2 = normals[k][1];
+        let n3 = normals[k][2];
+        objString += "vn " + n1 + " " + n2 + " " + n3 + "\n";
+    }
+    objString += "\n ";
+    for (let j = 0; j < indices.length; j++) {
+        let i1 = indices[j][0] + 1;
+        let i2 = indices[j][1] + 1;
+        let i3 = indices[j][2] + 1;
+        objString += "\n" + "f " + i1 + "//" + i1 + " " + i2 + "//" + i2 + " " + i3 + "//" + i3;
+    }
+
+    download(objString, 'test.obj', 'text');
 }
-// possibleOutcomes();
 
 
-function mCube(shape, z, y, x) {
-    let x0 = shape[z][y][x];
-    let x1 = shape[z][y][x - 1];
-    let x2 = shape[z][y][x + 1];
-    let y1 = shape[z][y - 1][x];
-    let y2 = shape[z][y + 1][x];
-    let z1 = shape[z - 1][y][x];
-    let z2 = shape[z + 2][y][x];
-}
+
+
+
+// let a = [1, 1, 1];
+// let b = a;
+// let c = [a[0], a[1], a[2]];
+// a[1] = 0;
+// console.log(a);
+// console.log(b);
+// console.log(c);
+// c = [];
+// for (let i = 0; i < a.length; i++) {
+//     c.push(a[i]);
+// }
+// console.log(c);
+
+
+
+// let abc = [];
+// for(let i = 0; i < 10000000; i++){
+//     abc.push(i);
+//     // abc = increaseAbc(abc, i);
+//     if(i % 100 === 0){
+//         console.log(i);
+//     }
+// }
+
+// function increaseAbc(abc, i){
+//     abc.push(i);
+//     return abc;
+// }
+
+
+
+
+
