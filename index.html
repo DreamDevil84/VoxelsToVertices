@@ -17,7 +17,8 @@
         nr:
         <input id="cubeRadius" type="number" value="5">
         <button onclick="makeSphere()">Go!</button>
-        <button onclick="convertMRI()">Test MRI JSON</button>
+        <button onclick="getMRI()">Get MRI JSON</button>
+        <button id="btnConvertMRI" style="visibility: hidden" onclick="convertMRI()">Convert MRI</button>
     </div>
     <div id="progressText">0%</div>
     <canvas id="myCanvas"></canvas>

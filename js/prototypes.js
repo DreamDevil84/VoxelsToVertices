@@ -14,6 +14,15 @@ Array.prototype.indexOfArray = function (val) {
     }
     return -1;
 }
+Array.prototype.fixLength = function () {
+    let reduceCount = 0;
+    for (var i = 0; i < this.length; i++) {
+        if (typeof this[i] === "undefined") {
+            reduceCount++;
+        }
+    }
+    this.length -= reduceCount;
+}
 
 //Extensions to Math for development
 

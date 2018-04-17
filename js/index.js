@@ -8,6 +8,8 @@ var canvas = document.getElementById('myCanvas');
 // Load the 3D engine
 var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
 
+var MRIShape = [];
+
 // CreateScene function that creates and return the scene
 var createScene = function (shape) {
 
@@ -52,14 +54,12 @@ var createScene = function (shape) {
     // redSurface.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
     // let sphere = makeVoxelSphere();
 
-    //#######################################################
-    //  Choose shape
-    //#######################################################
 
 
     let layers = shape.length;
     let startLayer = 0;
-    let meshData = buildVertices(shape);
+    // let meshData = buildVertices(shape);
+    let meshData = buildVerticesFast(shape);
     // let meshData = voxelToVertice(bar);
 
     //#######################################################
@@ -201,40 +201,43 @@ var createScene = function (shape) {
 
     // customMesh.convertToFlatShadedMesh();
 
-    showNormals(customMesh);
+    // showNormals(customMesh);
     console.log(shape);
 
 
     //#######################################################
     //  Standard box format
     //#######################################################
-    for (let z = startLayer; z < (startLayer + layers); z++) {
-        for (let y = 0; y < shape[z].length; y++) {
-            for (let x = 0; x < shape[z][y].length; x++) {
-                if (shape[z][y][x] > 0) {
-                    let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.1, width: 0.1, depth: 0.1 }, scene);
-                    box.position.z = (z - shape.length / 2) / 1;
-                    box.position.y = (y - shape.length / 2) / 1;
-                    box.position.x = (x - shape.length / 2) / 1;
-                    if (z > layers / 2) {
-                        box.material = greenSurface;
-                    } else {
-                        box.material = redSurface;
-                    }
-                }
-            }
-        }
-    }
+    // for (let z = startLayer; z < (startLayer + layers); z++) {
+    //     for (let y = 0; y < shape[z].length; y++) {
+    //         for (let x = 0; x < shape[z][y].length; x++) {
+    //             if (shape[z][y][x] > 0) {
+    //                 let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.1, width: 0.1, depth: 0.1 }, scene);
+    //                 box.position.z = (z - shape.length / 2) / 1;
+    //                 box.position.y = (y - shape.length / 2) / 1;
+    //                 box.position.x = (x - shape.length / 2) / 1;
+    //                 if (z > layers / 2) {
+    //                     box.material = greenSurface;
+    //                 } else {
+    //                     box.material = redSurface;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     console.log("done");
     return scene;
 
 };
-var scene = createScene(makeShapes(11));
-engine.runRenderLoop(function () {
-    scene.render();
-});
+// var scene = createScene(makeShapes(7));
+// engine.runRenderLoop(function () {
+//     scene.render();
+// });
 
+//#######################################################
+//  Choose shape
+//#######################################################
 function makeShapes(r) {
     // let shape = makeVoxelSphereOutline();
     let shape = makeVoxelSphere(r);
@@ -245,17 +248,29 @@ function makeShapes(r) {
     // console.log(shape);
     return shape;
 }
+//#######################################################
+//  Choose shape
+//#######################################################
 
 function makeTestObj(r) {
     let rad = r;
     let sph = makeVoxelSphere(rad);
-    let md = buildVertices(sph);
+    let md = buildVerticesFast(sph);
     let verts = md[0];
     let indis = md[1];
     let norms = md[2];
     writeObjFile(verts, indis, norms);
 }
-// makeTestObj(20);
+// makeTestObj(6);
+
+
+function makeObj(shape) {
+    let md = buildVerticesFast(shape);
+    let objVertices = md[0];
+    let objIndices = md[1];
+    let objNormals = md[2];
+    writeObjFile(objVertices, objIndices, objNormals);
+}
 
 function showNormals(mesh, size, color, sc) {
     var normals = mesh.getVerticesData(BABYLON.VertexBuffer.NormalKind);
@@ -544,14 +559,14 @@ function getTestPolygonSmall() {
             ],
             [
                 [0, 0, 0, 0],
+                [0, 1, 1, 0],
                 [0, 1, 0, 0],
-                [0, 0, 1, 0],
                 [0, 0, 0, 0]
             ],
             [
                 [0, 0, 0, 0],
                 [0, 0, 0, 0],
-                [0, 1, 0, 0],
+                [0, 0, 0, 0],
                 [0, 0, 0, 0]
             ],
             [
@@ -1003,7 +1018,36 @@ function getTestPoints(array) {
     return pArray;
 }
 
-function convertMRI() {
+function getMRI() {
     let request = new XMLHttpRequest();
-    request.open("GET", "water.json");
+    let path = "water.json";
+    request.open("GET", path);
+    request.send();
+    request.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            MRIShape = JSON.parse(this.responseText);
+            let btnConvert = document.getElementById("btnConvertMRI");
+            btnConvert.style.visibility = "visible";
+            console.log(MRIShape);
+        }
+    }
+}
+
+function convertMRI() {
+    let layers = 2;
+    let shape = [];
+    for (let i = 0; i < layers; i++) {
+        let hors = [];
+        for (let j = 0; j < MRIShape[i].length; j++) {
+            let vert = [];
+            for (let k = 0; k < MRIShape[i][j].length; k++) {
+                vert.push(MRIShape[i][j][k]);
+            }
+            hors.push(vert);
+        }
+        shape.push(hors);
+    }
+    // shape = getTestShapes(4);
+    makeObj(shape);
+    // makeObj(MRIShape);
 }
