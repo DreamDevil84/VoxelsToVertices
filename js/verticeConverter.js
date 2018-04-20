@@ -425,7 +425,7 @@ function buildVertices(shape, intensityLimit, sectionModifier) {
     if (!(zMod === 1)) {
         stretch(zMod);
     }
-    fixArrays();
+    formatArrays();
 
     vertices = convertToDoubleArray(vertices);
     indices = convertToDoubleArray(indices);
@@ -437,8 +437,8 @@ function buildVertices(shape, intensityLimit, sectionModifier) {
     let shapeSizeY = shape[0][0].length;
     let shapeSizeX = shape[0][0].length;
     checkNormals(normals);
-    shapeSmoothing(intensityMin, shapeSizeZ, shapeSizeY, shapeSizeX);
-    normals = setNormals();
+    // shapeSmoothing(intensityMin, shapeSizeZ, shapeSizeY, shapeSizeX);
+    // normals = setNormals();
 
     // for (let i = 0; i < intensities.length; i++) {
     //     if (intensities[i] <= 0) {
@@ -487,7 +487,7 @@ function checkNormals(array) {
     }
 }
 // TODO - optimise
-function fixArrays() {
+function formatArrays() {
     console.log("Formatting data: Start");
 
     // Finds dupes in vertice array and fixes them
@@ -532,7 +532,7 @@ function fixArrays() {
         }
         indexCheckCount++;
         if ((i % vertexProgress) === 0) {
-            console.log(("Vertex/Indexes: " + i / (vertices.length) * 100) + "%");
+            console.log(("Vertex/Indexes: " + Math.floor(i / (vertices.length) * 100)) + "%");
         }
     }
     console.log("Formatting Vertices: Done");
@@ -572,42 +572,46 @@ function fixArrays() {
     let found = 0;
     console.log("Fixing dupes: Start");
     let dupeProgress = Math.floor(indices.length / 100);
-    for (let i = 0; i < indices.length; i += 3) {
-        if (indices[i] === -1) {
-            continue;
-        }
-        let v1 = indices[i];
-        let v2 = indices[i + 1];
-        let v3 = indices[i + 2];
 
-        for (let j = i + 3; j < indices.length; j += 3) {
-            if (indices[j] === -1) {
-                continue;
-            }
-            let i1 = indices[j];
-            let i2 = indices[j + 1];
-            let i3 = indices[j + 2];
-            let sum = 0;
-            if (i1 === v1 || i1 === v2 || i1 === v3) {
-                sum++;
-            }
-            if (i2 === v1 || i2 === v2 || i2 === v3) {
-                sum++;
-            }
-            if (i3 === v1 || i3 === v2 || i3 === v3) {
-                sum++;
-            }
-            if (sum === 3) {
-                indices[j] = -1;
-                indices[j + 1] = -1;
-                indices[j + 2] = -1;
-                found++;
-            }
-        }
-        if (i % dupeProgress === 0) {
-            console.log("Dupe progress: " + (i / dupeProgress) + "%");
-        }
-    }
+    // TODO - optimise
+
+    // for (let i = 0; i < indices.length; i += 3) {
+    //     if (indices[i] === -1) {
+    //         continue;
+    //     }
+    //     let v1 = indices[i];
+    //     let v2 = indices[i + 1];
+    //     let v3 = indices[i + 2];
+
+    //     for (let j = i + 3; j < indices.length; j += 3) {
+    //         if (indices[j] === -1) {
+    //             continue;
+    //         }
+    //         let i1 = indices[j];
+    //         let i2 = indices[j + 1];
+    //         let i3 = indices[j + 2];
+    //         let sum = 0;
+    //         if (i1 === v1 || i1 === v2 || i1 === v3) {
+    //             sum++;
+    //         }
+    //         if (i2 === v1 || i2 === v2 || i2 === v3) {
+    //             sum++;
+    //         }
+    //         if (i3 === v1 || i3 === v2 || i3 === v3) {
+    //             sum++;
+    //         }
+    //         if (sum === 3) {
+    //             indices[j] = -1;
+    //             indices[j + 1] = -1;
+    //             indices[j + 2] = -1;
+    //             console.log("Found dupe at: " + j);
+    //             found++;
+    //         }
+    //     }
+    //     if (i % dupeProgress === 0) {
+    //         console.log("Dupe progress: " + (i / dupeProgress) + "%");
+    //     }
+    // }
     vertices = fixArrayLength(vertices);
     indices = fixArrayLength(indices);
     // console.log(indices);
@@ -783,7 +787,9 @@ function setNormals() {
 
         // Calculate Normal to Unit Vector
         newNormals.push(Math.unitVector(vertexNormalSum[0], vertexNormalSum[1], vertexNormalSum[2]));
-        // console.log("Normals: " + (i / (vertices.length - 1) * 100 + "%"));
+        if (i % 300 === 0) {
+            console.log("Normals: " + Math.floor((i / (vertices.length) * 100))* + "%");
+        }
     }
     console.log("Setting Normals: Done");
     return newNormals;
@@ -854,9 +860,9 @@ function shapeSmoothing(minIntensity, shapeSizeZ, shapeSizeY, shapeSizeX) {
     // let multiplierZ = (shapeSizeZ / 2) * (1 - minIntensity);
     // let multiplierY = (shapeSizeY / 2) * (1 - minIntensity);
     // let multiplierX = (shapeSizeX / 2) * (1 - minIntensity);
-    let multiplierZ = (minIntensity/4);
-    let multiplierY = (minIntensity/4);
-    let multiplierX = (minIntensity/4);
+    let multiplierZ = (minIntensity / 4);
+    let multiplierY = (minIntensity / 4);
+    let multiplierX = (minIntensity / 4);
     for (let i = 0; i < vertices.length; i++) {
         let intensity = intensities[i];
         // TODO - Try to find a better multiplier than a static one

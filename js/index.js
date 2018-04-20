@@ -354,8 +354,8 @@ engine.runRenderLoop(function () {
 //#######################################################
 function makeShapes(r) {
     // let shape = makeVoxelSphereOutline();
-    let shape = makeVoxelSphere(r);
-    // let shape = getTestShapes(5);
+    // let shape = makeVoxelSphere(r);
+    let shape = getTestShapes(5);
     // let shape = getTestPolygonSmall();
     // let shape = getTestPolygonLarge();
     // let shape = makeBar();
