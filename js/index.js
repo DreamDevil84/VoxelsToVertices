@@ -11,8 +11,10 @@ var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, ste
 var MRIShape = [];
 
 // CreateScene function that creates and return the scene
-var createScene = function (shape) {
+var createScene = function (shape, mIntens, zModifier) {
 
+    let minIntensity = mIntens || 0;
+    let zMod = zModifier || 1;
     // Create the scene space
     var scene = new BABYLON.Scene(engine);
 
@@ -22,7 +24,7 @@ var createScene = function (shape) {
     // var camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 4, Math.PI / 4, 4, BABYLON.Vector3.Zero(), scene);
 
     // Free Camera
-    var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(-3, 3, -4), scene);
+    var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(-3, 3, -(shape.length * 1.5), scene));
     camera.setTarget(BABYLON.Vector3.Zero());
 
     camera.attachControl(canvas, true);
@@ -58,8 +60,8 @@ var createScene = function (shape) {
 
     let layers = shape.length;
     let startLayer = 0;
-    // let meshData = buildVertices(shape);
-    let meshData = buildVerticesFast(shape);
+    // let meshData = buildVertices(shape, minIntensity);
+    let meshData = buildVertices(shape, minIntensity, zMod);
     // let meshData = voxelToVertice(bar);
 
     //#######################################################
@@ -108,6 +110,91 @@ var createScene = function (shape) {
         new BABYLON.Color4(1, 1, 0, 1)
     ];
 
+    var xPointsScale = [
+        new BABYLON.Vector3(startpoint + 1, startpoint, startpoint)
+    ];
+    var yPointsScale = [
+        new BABYLON.Vector3(startpoint, startpoint + 1, startpoint)
+    ];
+    var zPointsScale = [
+        new BABYLON.Vector3(startpoint, startpoint, startpoint + 1)
+    ];
+    for (let i = 0; i < 100; i += 5) {
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i, startpoint, startpoint));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i, startpoint, startpoint + 1));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i, startpoint, startpoint - 1));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i, startpoint, startpoint));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 1, startpoint, startpoint));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 1, startpoint, startpoint + 1));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 1, startpoint, startpoint - 1));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 1, startpoint, startpoint));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 2, startpoint, startpoint));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 2, startpoint, startpoint + 1));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 2, startpoint, startpoint - 1));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 2, startpoint, startpoint));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 3, startpoint, startpoint));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 3, startpoint, startpoint + 1));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 3, startpoint, startpoint - 1));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 3, startpoint, startpoint));;
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 4, startpoint, startpoint));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 4, startpoint, startpoint + 1));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 4, startpoint, startpoint - 1));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 4, startpoint, startpoint));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 5, startpoint, startpoint));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 5, startpoint, startpoint + 3));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 5, startpoint, startpoint - 3));
+        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 5, startpoint, startpoint));
+
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i, startpoint));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i, startpoint + 1));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i, startpoint - 1));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i, startpoint));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 1, startpoint));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 1, startpoint + 1));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 1, startpoint - 1));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 1, startpoint));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 2, startpoint));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 2, startpoint + 1));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 2, startpoint - 1));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 2, startpoint));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 3, startpoint));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 3, startpoint + 1));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 3, startpoint - 1));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 3, startpoint));;
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 4, startpoint));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 4, startpoint + 1));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 4, startpoint - 1));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 4, startpoint));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 5, startpoint));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 5, startpoint + 3));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 5, startpoint - 3));
+        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 5, startpoint));
+
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i, ));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + i, ));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint - 1, startpoint + i, ));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i, ));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 1));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + i + 1));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint - 1, startpoint + i + 1));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 1));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 2));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + i + 2));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint - 1, startpoint + i + 2));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 2));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 3));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + i + 3));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint - 1, startpoint + i + 3));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 3));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 4));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + i + 4));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint - 1, startpoint + i + 4));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 4));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 5));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + 3, startpoint + i + 5));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint - 3, startpoint + i + 5));
+        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 5));
+    }
     let abc = 0.1;
 
     let tpn = [0, 0, 0];
@@ -142,13 +229,14 @@ var createScene = function (shape) {
 
     var testPoints = getTestPoints(testPointsArray);
 
-
-
     // var testLine = BABYLON.MeshBuilder.CreateLines("testLine", { points: testPoints }, scene);
 
-    var linesX = BABYLON.MeshBuilder.CreateLines("linesX", { points: myPointsX, colors: redColor }, scene);
+    // var linesX = BABYLON.MeshBuilder.CreateLines("linesX", { points: myPointsX, colors: redColor }, scene);
+    var linesXscale = BABYLON.MeshBuilder.CreateLines("linesXscale", { points: xPointsScale }, scene);
     var linesY = BABYLON.MeshBuilder.CreateLines("linesY", { points: myPointsY, colors: greenColor }, scene);
+    var linesYscale = BABYLON.MeshBuilder.CreateLines("linesYscale", { points: yPointsScale }, scene);
     var linesZ = BABYLON.MeshBuilder.CreateLines("linesZ", { points: myPointsZ, colors: yellowColor }, scene);
+    var linesZscale = BABYLON.MeshBuilder.CreateLines("linesZscale", { points: zPointsScale }, scene);
 
     // var lines1 = BABYLON.MeshBuilder.CreateLines("lines1", { points: myPoints1 }, scene);
     // var lines2 = BABYLON.MeshBuilder.CreateLines("lines2", { points: myPoints2, colors: redColor }, scene);
@@ -168,7 +256,7 @@ var createScene = function (shape) {
     var positions = [];
     let vertices = meshData[0];
     // console.log(meshData[1]);
-    var indices = formatIndices(meshData[1]);
+    let indices = formatIndices(meshData[1]);
     var normals = [];
     for (let i = 0; i < vertices.length; i++) {
         positions.push(vertices[i][2] - shape.length / 2);
@@ -179,8 +267,19 @@ var createScene = function (shape) {
         // positions.push(vertices[i][0]);
         // indices.push(i);
     }
-    // console.log(vertices);
-    // console.log(indices);
+
+    // var positions = [];
+    // // console.log(meshData[0]);
+    // // console.log(meshData[1]);
+    // let vertices = meshData[0];
+    // let indices = meshData[1];
+    // var normals = [];
+    // for (let i = 0; i < vertices.length; i += 3) {
+    //     positions.push(vertices[i + 2] - shape.length / 2);
+    //     positions.push(vertices[i + 1] - shape.length / 2);
+    //     positions.push(vertices[i] - shape.length / 2);
+    // }
+    // positions = vertices;
 
     // BABYLON.VertexData.ComputeNormals(positions, indices, normals);
 
@@ -202,7 +301,7 @@ var createScene = function (shape) {
     // customMesh.convertToFlatShadedMesh();
 
     // showNormals(customMesh);
-    console.log(shape);
+    // console.log(shape);
 
 
     //#######################################################
@@ -211,15 +310,28 @@ var createScene = function (shape) {
     // for (let z = startLayer; z < (startLayer + layers); z++) {
     //     for (let y = 0; y < shape[z].length; y++) {
     //         for (let x = 0; x < shape[z][y].length; x++) {
-    //             if (shape[z][y][x] > 0) {
-    //                 let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.1, width: 0.1, depth: 0.1 }, scene);
-    //                 box.position.z = (z - shape.length / 2) / 1;
-    //                 box.position.y = (y - shape.length / 2) / 1;
-    //                 box.position.x = (x - shape.length / 2) / 1;
-    //                 if (z > layers / 2) {
-    //                     box.material = greenSurface;
+    //             if (shape[z][y][x] > minIntensity) {
+    //                 if (z === 2 && y === 5 && x === 3 || z === 3 && y === 4 && x === 3 ) {
+    //                     // check specific vertice
+    //                     let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.6, width: 0.6, depth: 0.6 }, scene);
+    //                     box.position.z = (z - shape.length / 2) + 1;
+    //                     box.position.y = (y - shape.length / 2) + 1;
+    //                     box.position.x = (x - shape.length / 2) + 1;
+    //                     if (z > layers / 2) {
+    //                         box.material = redSurface;
+    //                     } else {
+    //                         box.material = redSurface;
+    //                     }
     //                 } else {
-    //                     box.material = redSurface;
+    //                     let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.1, width: 0.1, depth: 0.1 }, scene);
+    //                     box.position.z = (z - shape.length / 2) + 1;
+    //                     box.position.y = (y - shape.length / 2) + 1;
+    //                     box.position.x = (x - shape.length / 2) + 1;
+    //                     if (z > layers / 2) {
+    //                         box.material = redSurface;
+    //                     } else {
+    //                         box.material = redSurface;
+    //                     }
     //                 }
     //             }
     //         }
@@ -230,18 +342,20 @@ var createScene = function (shape) {
     return scene;
 
 };
-// var scene = createScene(makeShapes(7));
-// engine.runRenderLoop(function () {
-//     scene.render();
-// });
+var scene = 0;
+scene = createScene(makeShapes(20), 0.4);
+engine.runRenderLoop(function () {
+    scene.render();
+});
 
+// let ssss = buildVertices(makeShapes(10));
 //#######################################################
 //  Choose shape
 //#######################################################
 function makeShapes(r) {
     // let shape = makeVoxelSphereOutline();
     let shape = makeVoxelSphere(r);
-    // let shape = getTestShapes(3);
+    // let shape = getTestShapes(5);
     // let shape = getTestPolygonSmall();
     // let shape = getTestPolygonLarge();
     // let shape = makeBar();
@@ -255,7 +369,7 @@ function makeShapes(r) {
 function makeTestObj(r) {
     let rad = r;
     let sph = makeVoxelSphere(rad);
-    let md = buildVerticesFast(sph);
+    let md = buildVertices(sph);
     let verts = md[0];
     let indis = md[1];
     let norms = md[2];
@@ -263,14 +377,6 @@ function makeTestObj(r) {
 }
 // makeTestObj(6);
 
-
-function makeObj(shape) {
-    let md = buildVerticesFast(shape);
-    let objVertices = md[0];
-    let objIndices = md[1];
-    let objNormals = md[2];
-    writeObjFile(objVertices, objIndices, objNormals);
-}
 
 function showNormals(mesh, size, color, sc) {
     var normals = mesh.getVerticesData(BABYLON.VertexBuffer.NormalKind);
@@ -293,7 +399,7 @@ function showNormals(mesh, size, color, sc) {
 function makeSphere() {
     engine.stopRenderLoop();
     let r = document.getElementById("cubeRadius").value;
-    var scene = createScene(r);
+    var scene = createScene(makeShapes(r));
     engine.runRenderLoop(function () {
         scene.render();
     });
@@ -457,27 +563,10 @@ function download(content, fileName, contentType) {
     console.log("Download finished");
 }
 
-// engine.runRenderLoop(function () {
-//     scene.render();
-// });
-
-
 window.addEventListener('resize', function () {
     engine.resize();
 });
 
-
-
-// var testArray = [
-//     [1, 1, 1],
-//     [2, 2, 2],
-//     [3, 3, 3],
-//     [4, 4, 4]
-// ];
-// var test = [2, 2, 2];
-
-// console.log(testArray.containsArray(test));
-// console.log(testArray.containsArrayIndex(test));
 
 function getTestShapes(size) {
     let shape = [];
@@ -553,26 +642,26 @@ function getTestPolygonSmall() {
         [
             [
                 [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
+                [0, 1, 1, 0],
+                [0, 1, 1, 0],
                 [0, 0, 0, 0]
+            ],
+            [
+                [0, 1, 1, 0],
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+                [0, 1, 1, 0]
+            ],
+            [
+                [0, 1, 1, 0],
+                [1, 1, 1, 1],
+                [1, 1, 1, 1],
+                [0, 1, 1, 0]
             ],
             [
                 [0, 0, 0, 0],
                 [0, 1, 1, 0],
-                [0, 1, 0, 0],
-                [0, 0, 0, 0]
-            ],
-            [
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0]
-            ],
-            [
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
+                [0, 1, 1, 0],
                 [0, 0, 0, 0]
             ]
         ];
@@ -583,404 +672,74 @@ function getTestPolygonLarge() {
     let polygon =
         [
             [
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ]
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             ],
             [
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ]
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             ],
             [
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.5, 0.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ]
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             ],
             [
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ]
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             ],
-            // [
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 0.0, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-            //     ]
-            // ],
-            // [
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-            //     ]
-            // ],
-            // [
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0
-            //     ],
-            //     [
-            //         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-            //     ]
-            // ],
             [
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ],
-                [
-                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-                ]
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             ]
         ]
     return polygon;
@@ -1028,15 +787,18 @@ function getMRI() {
             MRIShape = JSON.parse(this.responseText);
             let btnConvert = document.getElementById("btnConvertMRI");
             btnConvert.style.visibility = "visible";
-            console.log(MRIShape);
+            // console.log(MRIShape);
         }
     }
 }
 
 function convertMRI() {
-    let layers = 2;
+    let startLayer = 40;
+    // let startLayer = 55;
+    // let layers = MRIShape.length;
+    let layers = 50;
     let shape = [];
-    for (let i = 0; i < layers; i++) {
+    for (let i = startLayer; i < (startLayer + layers); i++) {
         let hors = [];
         for (let j = 0; j < MRIShape[i].length; j++) {
             let vert = [];
@@ -1047,7 +809,29 @@ function convertMRI() {
         }
         shape.push(hors);
     }
+    // console.log(shape);
     // shape = getTestShapes(4);
-    makeObj(shape);
+    // makeObj(shape, 0.5, 2);
     // makeObj(MRIShape);
+    engine.stopRenderLoop();
+    scene = createScene(shape, 0.5, 1);
+    engine.runRenderLoop(function () {
+        scene.render();
+    });
+}
+
+function makeObj(shape, intensity, zMod) {
+    let md = buildVertices(shape, intensity, zMod);
+    let objVertices = md[0];
+    let objIndices = md[1];
+    let objNormals = md[2];
+    writeObjFile(objVertices, objIndices);
+}
+
+function makeObjOLD(shape, intensity) {
+    let md = buildVertices(shape, intensity);
+    let objVertices = md[0];
+    let objIndices = md[1];
+    let objNormals = md[2];
+    writeObjFile(objVertices, objIndices, objNormals);
 }
