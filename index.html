@@ -5,27 +5,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
     <script src="js/babylon.custom.js"></script>
     <script src="js/prototypes.js"></script>
-    <link rel="stylesheet" href="css/style.css">
-    <title>MakeSphere</title>
+    <title>MRI Body Viewer</title>
 </head>
 
 <body>
-    <div>Set radius</div>
-    <div>
-        nr:
-        <input id="cubeRadius" type="number" value="5">
-        <button onclick="makeSphere()">Go!</button>
-        <button onclick="getMRI()">Get MRI JSON</button>
-        <button id="btnConvertMRI" style="visibility: hidden" onclick="convertMRI()">Convert MRI</button>
-    </div>       
-    <button onclick="runTest()">TEST</button>
-    <div id="progressText">0%</div>
-    <canvas id="myCanvas"></canvas>
-    <script src="js/verticeConverter.js"></script>
+    <div class="container-fluid top-bar">
+        <div class="row justify-content-start">
+            <div class="col-auto">
+                <button type="button" class="btn btn-primary" onclick="">Get Body</button>
+                <button type="button" id="btnShowWater" class="btn btn-secondary" disabled onclick="showWater()">Water</button>
+                <button type="button" id="btnShowFat" class="btn btn-secondary" disabled onclick="showFat()">Fat</button>
+                <button type="button" id="btnShowComparison" class="btn btn-secondary" style="visibility: hidden" onclick="showComparison()">Compare Both</button>
+            </div>
+            <div class="col">
+                <p>
+                    <span class="progress-feedback" id="waterProgress">Water: Loading from server</span>
+                    <br>
+                    <span class="progress-feedback" id="fatProgress">Fat: Loading from server</span>
+                    <span class="progress-feedback" id="instructions" style="visibility: hidden">Rotate camera by holding down the left mouse button, move camera with arrow keys or WASD.</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <canvas id="myCanvas"></canvas>
+        </div>
+    </div>
+    <div id="garbage"></div>
+    <script src="js/MRIVoxelConverter.js"></script>
+    <script src="js/voxelLines.js"></script>
+    <script src="js/vertexNormals.js"></script>
     <script src="js/index.js"></script>
     <script src="js/tests.js"></script>
 </body>
+
+<!-- <button type="button" class="btn btn-primary" onclick="getMRI('fat')">Get FAT MRI JSON</button>
+<button type="button" class="btn btn-primary" onclick="getMRI('water')">Get WATER MRI JSON</button>
+<button type="button" class="btn btn-primary" onclick="convertMRIFromJSON('fat')">Get Fat Vertex/Index JSON</button>
+<button type="button" class="btn btn-primary" onclick="convertMRIFromJSON('water')">Get Water Vertex/Index JSON</button>
+<button type="button" class="btn btn-primary" onclick="convertMRIFromJSONforBoth()">Compare Both</button>
+<button id="btnConvertMRI" type="button" class="btn btn-primary" style="visibility: hidden" onclick="convertMRI()">Convert MRI</button> -->
 
 </html>

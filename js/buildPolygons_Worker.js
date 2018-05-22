@@ -1,3 +1,115 @@
+//  Prototype found online, helps search an array for an array
+Array.prototype.containsArray = function (val) {
+    var hash = {};
+    for (var i = 0; i < this.length; i++) {
+        hash[this[i]] = i;
+    }
+    return hash.hasOwnProperty(val);
+}
+Array.prototype.indexOfArray = function (val) {
+    for (var i = 0; i < this.length; i++) {
+        if (this[i][0] === val[0] && this[i][1] === val[1] && this[i][2] === val[2]) {
+            return i;
+        }
+    }
+    return -1;
+}
+Array.prototype.fixLength = function () {
+    for (var i = 0; i < this.length; i++) {
+        if (typeof this[i] === "undefined") {
+            this.length = i;
+            break;
+        }
+    }
+}
+
+
+//Extensions to Math
+Math.cross = function (a, b) {
+    let result = [
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0]
+    ];
+    return result;
+}
+Math.cross4d = function (A, B, C, D) {
+    let a0 = A[0];
+    let a1 = A[1];
+    let a2 = A[2];
+    let a3 = A[3];
+
+    let b0 = B[0];
+    let b1 = B[1];
+    let b2 = B[2];
+    let b3 = B[3];
+
+    let c0 = C[0];
+    let c1 = C[1];
+    let c2 = C[2];
+    let c3 = C[3];
+
+    let right = [1, 0, 0, 0];
+    let up = [0, 1, 0, 0];
+    let back = [0, 0, 1, 0];
+    let charm = [0, 0, 0, 1];
+
+    let d = D;
+
+    // let result = [
+    //     a1 * b2 - a2 * b1,
+    //     a2 * b0 - a0 * b2,
+    //     a0 * b1 - a1 * b0
+    // ];
+
+    // let result = [
+    //     ((a1 * b2) - (b1 * a2)) * right,
+    //     ((a0 * b2) - (b0 * a2)) * (-1 * up),
+    //     ((a0 * b1) - (b0 * a1)) * back
+    // ];
+
+    // let result = [
+    //     ((a1 * b2) - (b1 * a2)) * c0,
+    //     ((a0 * b2) - (b0 * a2)) * (-1 * c1),
+    //     ((a0 * b1) - (b0 * a1)) * c2
+    // ];
+
+
+    let ab0 = ((a0 * b1) - (b0 * a1));
+    let ab1 = ((a0 * b2) - (b0 * a2));
+    let ab2 = ((a1 * b2) - (b1 * a2));
+
+    // let result = [
+    //     (ab1 * c2) - (c1 * ab2),
+    //     (ab2 * c0) - (c2 * ab0),
+    //     (ab0 * c1) - (c0 * ab1)
+    // ]
+    let result = [
+        ab0, ab1, ab2
+    ];
+
+
+
+    return result;
+}
+Math.tangent = function (a, b) {
+    return Math.sqrt((a * a) + (b * b));
+}
+Math.tangent3d = function (a, b, c) {
+    let t = Math.tangent(a, b);
+    return Math.sqrt((t * t) + (c * c));
+}
+Math.unitVector = function (x, y, z) {
+    let xV = x / (Math.sqrt((x * x) + (y * y) + (z * z)));
+    let yV = y / (Math.sqrt((x * x) + (y * y) + (z * z)));
+    let zV = z / (Math.sqrt((x * x) + (y * y) + (z * z)));
+    return [xV, yV, zV];
+}
+Math.precisionRound = function (number, decimal) {
+    let factor = Math.pow(10, decimal);
+    number = Math.round(number * factor) / factor;
+    return number;
+}
 //List of types of pieces
 let pieceList = [
     // 3
@@ -156,6 +268,8 @@ function buildVertices(shape, intensityLimit, sectionModifier) {
                             a3Check = checkBehind(a3, tempNormal);
                             if (a1Check + a2Check + a3Check > 0) {
                                 polygonProperties(a1, a3, a2);
+                            } else {
+                                polygonProperties(a1, a3, a2);
                             }
                             break;
                         case 1:
@@ -193,6 +307,8 @@ function buildVertices(shape, intensityLimit, sectionModifier) {
                             a4Check = checkBehind(a4, tempNormal);
                             if (a1Check + a2Check + a3Check + a4Check > 0) {
                                 flatPolygonProperties(a1, a3, a2, a4);
+                            } else {
+                                singleFlatPolygonProperties(a1, a3, a2, a4);
                             }
                             break;
                         case 4:
@@ -250,8 +366,10 @@ function buildVertices(shape, intensityLimit, sectionModifier) {
                             a7.push(shape[a7[0]][a7[1]][a7[2]]);
                             a8 = fixVerticeRotation(a8, 8, zRot, yRot, xRot);
                             a8.push(shape[a8[0]][a8[1]][a8[2]]);
+                            polygonProperties(a1, a2, a7);
+                            polygonProperties(a2, a8, a7);
                             polygonProperties(a1, a8, a2);
-                            polygonProperties(a1, a8, a7);
+                            polygonProperties(a1, a7, a8);
                             break;
                         case 9:
                             a1 = fixVerticeRotation(a1, 1, zRot, yRot, xRot);
@@ -406,46 +524,40 @@ function buildVertices(shape, intensityLimit, sectionModifier) {
                 }
                 // console.log(intensities);
             }
-            // let progress = (z / (shape.length - 1) * 100) + (y / (shape[0].length) * 10);
-            // console.log("Vertices: " + progress + "%");
         }
-        // console.log(("Vertices: " + z / (shape.length - 2) * 100) + "%");
     }
     console.log("Building vertices: Done");
     // console.log(intensities);
     // console.log(vertices.length);
     // console.log(normals.length);
     // console.log(indices.length);
-    // console.log(vertices);
     // console.log(indices);
     // console.log(intensities.length);
+    console.log("Adjusting Arrays: Start");
     vertices.fixLength();
     indices.fixLength();
     normals.fixLength();
+    console.log("Adjusting Arrays: Done");
+    let normalsToCheck = formatArrays();
+
+    intensities = fixIntensitiesLength();
+    // let d1 = Date.now();
+    normals = setNormals(normalsToCheck);
+    // let d2 = Date.now() - d1;
+    // console.log(d2 / 1000 + " s");
+
+    let shapeSizeZ = shape.length;
+    let shapeSizeY = shape[0].length;
+    let shapeSizeX = shape[0][0].length;
+
+    shapeSmoothingCrunch(10);
+    // shapeSmoothing(intensityMin, shapeSizeZ - 3, shapeSizeY - 3, shapeSizeX - 3);
+
     if (!(zMod === 1)) {
         stretch(zMod);
     }
-    formatArrays();
+    normals = setNormals(normalsToCheck);
 
-    vertices = convertToDoubleArray(vertices);
-    indices = convertToDoubleArray(indices);
-
-    intensities = fixIntensitiesLength();
-    normals = setNormals();
-
-    let shapeSizeZ = shape.length;
-    let shapeSizeY = shape[0][0].length;
-    let shapeSizeX = shape[0][0].length;
-    checkNormals(normals);
-    // shapeSmoothing(intensityMin, shapeSizeZ, shapeSizeY, shapeSizeX);
-    // normals = setNormals();
-
-    // for (let i = 0; i < intensities.length; i++) {
-    //     if (intensities[i] <= 0) {
-    //         console.log(i);
-    //         console.log(intensities[i]);
-    //     }
-    // }
     function checkBehind(vertex, normal) {
         if (shape[vertex[0] - normal[2]][vertex[1] - normal[1]][vertex[2] - normal[0]] > 0) {
             return 1;
@@ -454,7 +566,7 @@ function buildVertices(shape, intensityLimit, sectionModifier) {
     }
 
     console.log("ALL DONE");
-    return [vertices, indices, normals];
+    return [vertices, indices, normals, intensities];
 }
 function convertToDoubleArray(array) {
     let newArray = [];
@@ -463,12 +575,20 @@ function convertToDoubleArray(array) {
     }
     return newArray;
 }
-function stretch(mod) {
+function stretchOLD(mod) {
     // Increases size of 3d-model along the z-axis
     console.log("Stretching");
 
     for (let i = 0; i < vertices.length; i += 3) {
         vertices[i] *= mod;
+    }
+}
+function stretch(mod) {
+    // Increases size of 3d-model along the z-axis
+    console.log("Stretching");
+
+    for (let i = 0; i < vertices.length; i++) {
+        vertices[i][0] *= mod;
     }
 }
 function checkNormals(array) {
@@ -479,7 +599,7 @@ function checkNormals(array) {
         let n3 = array[i][2];
 
         if (isNaN(n1) || isNaN(n2) || isNaN(n3)) {
-            // console.log("USELESS NORMAL FOUND at: " + i);
+            console.log("USELESS NORMAL FOUND at: " + i);
             array[i][0] = -1;
             array[i][1] = -1;
             array[i][2] = -1;
@@ -497,7 +617,7 @@ function formatArrays() {
     let indexesToCheck = new Array(vertices.length);
     let indexCheckCount = 0;
     console.log("Formatting Vertices: Start");
-    let vertexProgress = Math.floor(vertices.length / 100);
+    let vertexProgress = Math.floor((vertices.length / 100));
     for (let i = 0; i < vertices.length; i += 3) {
         if (vertices[i] === -1) {
             continue;
@@ -517,6 +637,9 @@ function formatArrays() {
             if (vertices[j] === -1) {
                 continue;
             }
+            if (vertices[j] > vertices[i] + 2) {
+                break;
+            }
             let i1 = vertices[j];
             let i2 = vertices[j + 1];
             let i3 = vertices[j + 2];
@@ -531,14 +654,14 @@ function formatArrays() {
             }
         }
         indexCheckCount++;
-        if ((i % vertexProgress) === 0) {
-            console.log(("Vertex/Indexes: " + Math.floor(i / (vertices.length) * 100)) + "%");
+        if ((i % (vertexProgress)) === 0) {
+            console.log("Vertex Progress: " + (i / vertexProgress) + "%");
         }
     }
     console.log("Formatting Vertices: Done");
 
 
-    //  Removes empty slots in indexToCheck
+    //  Removes empty slots in indexesToCheck
     for (let i = 0; i < indexesToCheck.length; i++) {
         if (typeof indexesToCheck[i] === "undefined") {
             indexesToCheck.length = i;
@@ -551,7 +674,6 @@ function formatArrays() {
             }
         }
     }
-
     //  Create Index Checklist
     let indexArray = new Array(indices.length);
     for (let i = 0; i < indexesToCheck.length; i++) {
@@ -568,11 +690,28 @@ function formatArrays() {
     }
     console.log("Formatting Indices: Done");
 
+
+    vertices = fixArrayLength(vertices);
+    vertices = convertToDoubleArray(vertices);
+    indices = convertToDoubleArray(indices);
+
+    //  Build Checklist for Normals
+    let normalsToCheck = [];
+    for (let i = 0; i < indexesToCheck.length; i++) {
+        normalsToCheck.push([]);
+    }
+    for (let i = 0; i < indices.length; i++) {
+        for (let j = 0; j < indices[i].length; j++) {
+            let temp = indices[i][j];
+            normalsToCheck[temp].push(i);
+        }
+    }
+
+
     //  Replace duplicate polygons
     let found = 0;
     console.log("Fixing dupes: Start");
     let dupeProgress = Math.floor(indices.length / 100);
-
     // TODO - optimise
 
     // for (let i = 0; i < indices.length; i += 3) {
@@ -601,23 +740,21 @@ function formatArrays() {
     //             sum++;
     //         }
     //         if (sum === 3) {
-    //             indices[j] = -1;
-    //             indices[j + 1] = -1;
-    //             indices[j + 2] = -1;
+    //             // indices[j] = -1;
+    //             // indices[j + 1] = -1;
+    //             // indices[j + 2] = -1;
     //             console.log("Found dupe at: " + j);
     //             found++;
     //         }
     //     }
-    //     if (i % dupeProgress === 0) {
-    //         console.log("Dupe progress: " + (i / dupeProgress) + "%");
-    //     }
+    // if (i % dupeProgress === 0) {
+    //     console.log("Dupe progress: " + (i / dupeProgress) + "%");
     // }
-    vertices = fixArrayLength(vertices);
-    indices = fixArrayLength(indices);
-    // console.log(indices);
+    // }
     console.log("Fixing dupes: Done");
     console.log("Found dupes: " + found);
     console.log("Formatting data: Done");
+    return normalsToCheck;
 }
 function fixArrayLength(array) {
     let newArray = [];
@@ -751,21 +888,86 @@ function flatPolygonProperties(vertex1, vertex2, vertex3, vertex4) {
     indices[iCount] = i3;
     iCount++;
 }
-function setNormals() {
+function singleFlatPolygonProperties(vertex1, vertex2, vertex3, vertex4) {
+
+    //This one handles single squares floating in space
+
+    let i1 = vCount / 3;
+    vertices[vCount] = vertex1[0];
+    normals[vCount] = 0;
+    vCount++;
+    vertices[vCount] = vertex1[1];
+    normals[vCount] = 0;
+    vCount++;
+    vertices[vCount] = vertex1[2];
+    normals[vCount] = 0;
+    vCount++;
+    intensities[intCount] = vertex1[3];
+    intCount++;
+
+    let i2 = vCount / 3;
+    vertices[vCount] = vertex2[0];
+    normals[vCount] = 0;
+    vCount++;
+    vertices[vCount] = vertex2[1];
+    normals[vCount] = 0;
+    vCount++;
+    vertices[vCount] = vertex2[2];
+    normals[vCount] = 0;
+    vCount++;
+    intensities[intCount] = vertex2[3];
+    intCount++;
+
+    let i3 = vCount / 3;
+    vertices[vCount] = vertex3[0];
+    normals[vCount] = 0;
+    vCount++;
+    vertices[vCount] = vertex3[1];
+    normals[vCount] = 0;
+    vCount++;
+    vertices[vCount] = vertex3[2];
+    normals[vCount] = 0;
+    vCount++;
+    intensities[intCount] = vertex3[3];
+    intCount++;
+
+    let i4 = vCount / 3;
+    vertices[vCount] = vertex4[0];
+    normals[vCount] = 0;
+    vCount++;
+    vertices[vCount] = vertex4[1];
+    normals[vCount] = 0;
+    vCount++;
+    vertices[vCount] = vertex4[2];
+    normals[vCount] = 0;
+    vCount++;
+    intensities[intCount] = vertex4[3];
+    intCount++;
+
+    indices[iCount] = i1;
+    iCount++;
+    indices[iCount] = i2;
+    iCount++;
+    indices[iCount] = i3;
+    iCount++;
+    indices[iCount] = i2;
+    iCount++;
+    indices[iCount] = i4;
+    iCount++;
+    indices[iCount] = i3;
+    iCount++;
+}
+function setNormals(normalsToCheck) {
     console.log("Setting Normals: Start");
     let newNormals = [];
     for (let i = 0; i < vertices.length; i++) {
         let vertexNormalsRaw = [];
-        for (let j = 0; j < indices.length; j++) {
-            for (let k = 0; k < indices[j].length; k++) {
-                if (indices[j][k] === i) {
-                    let v1 = vertices[indices[j][0]];
-                    let v2 = vertices[indices[j][1]];
-                    let v3 = vertices[indices[j][2]];
-                    let n = calculateNormals(v1, v2, v3);
-                    vertexNormalsRaw.push(n);
-                }
-            }
+        for (let j = 0; j < normalsToCheck[i].length; j++) {
+            let v1 = vertices[indices[normalsToCheck[i][j]][0]];
+            let v2 = vertices[indices[normalsToCheck[i][j]][1]];
+            let v3 = vertices[indices[normalsToCheck[i][j]][2]];
+            let n = calculateNormals(v1, v2, v3);
+            vertexNormalsRaw.push(n);
         }
 
         // Remove duplicate normals
@@ -775,6 +977,7 @@ function setNormals() {
                 vertexNormalsFormated.push(vertexNormalsRaw[x]);
             }
         }
+        // console.log(vertexNormalsFormated);
 
         // Add normals together
         let vertexNormalSum = [0, 0, 0];
@@ -785,11 +988,21 @@ function setNormals() {
         }
         // console.log(vertexNormalSum);
 
+        if (vertexNormalSum[0] === 0 && vertexNormalSum[1] === 0 && vertexNormalSum[2] === 0) {
+            // console.log(newNormals);
+            // console.log(vertexNormalsRaw);
+            // console.log(vertexNormalsFormated);
+            // console.log(i);
+            vertexNormalSum[0] = vertexNormalsFormated[0][0];
+            vertexNormalSum[1] = vertexNormalsFormated[0][1];
+            vertexNormalSum[2] = vertexNormalsFormated[0][2];
+        }
+
         // Calculate Normal to Unit Vector
         newNormals.push(Math.unitVector(vertexNormalSum[0], vertexNormalSum[1], vertexNormalSum[2]));
-        if (i % 300 === 0) {
-            console.log("Normals: " + Math.floor((i / (vertices.length) * 100))* + "%");
-        }
+        // if (i % 300 === 0) {
+        //     console.log("Normals: " + Math.floor((i / (vertices.length) * 100)) + "%");
+        // }
     }
     console.log("Setting Normals: Done");
     return newNormals;
@@ -799,7 +1012,7 @@ function coatShape(shape) {
     let newShape = [];
     let emptySlate = new Array(shape[0].length + 2);
     let emptyRow = new Array(shape[0][0].length + 2);
-    emptyRow.fill(0);
+    emptyRow.fill(-1);
     emptySlate.fill(emptyRow);
     newShape.push(emptySlate);
     for (let i = 0; i < shape.length; i++) {
@@ -807,11 +1020,11 @@ function coatShape(shape) {
         hor.push(emptyRow);
         for (let j = 0; j < shape[i].length; j++) {
             let ver = [];
-            ver.push(0);
+            ver.push(-1);
             for (let k = 0; k < shape[i][j].length; k++) {
                 ver.push(shape[i][j][k]);
             }
-            ver.push(0);
+            ver.push(-1);
             hor.push(ver);
         }
         hor.push(emptyRow);
@@ -851,7 +1064,6 @@ function calculateNormals(a, b, c) {
     x.push(n3);
     return x;
 }
-
 //####################################################################
 //  Smoothing Functions
 //####################################################################
@@ -860,20 +1072,204 @@ function shapeSmoothing(minIntensity, shapeSizeZ, shapeSizeY, shapeSizeX) {
     // let multiplierZ = (shapeSizeZ / 2) * (1 - minIntensity);
     // let multiplierY = (shapeSizeY / 2) * (1 - minIntensity);
     // let multiplierX = (shapeSizeX / 2) * (1 - minIntensity);
-    let multiplierZ = (minIntensity / 4);
-    let multiplierY = (minIntensity / 4);
-    let multiplierX = (minIntensity / 4);
+    // let multiplierZ = (minIntensity / 10);
+    // let multiplierY = (minIntensity / 10);
+    // let multiplierX = (minIntensity / 10);
+    // let multiplierZ = (shapeSizeZ / 2);
+    // let multiplierY = (shapeSizeY / 2);
+    // let multiplierX = (shapeSizeX / 2);
     for (let i = 0; i < vertices.length; i++) {
         let intensity = intensities[i];
-        // TODO - Try to find a better multiplier than a static one
+        let multiplier = intensity - (0.5 + (minIntensity / 2));
+        // let multiplier = intensity*100;
 
-        vertices[i][0] += ((normals[i][2] * (1 + intensity * multiplierZ)));
-        vertices[i][1] += ((normals[i][1] * (1 + intensity * multiplierY)));
-        vertices[i][2] += ((normals[i][0] * (1 + intensity * multiplierX)));
+        // vertices[i][0] += ((normals[i][2] * (1 + intensity * multiplierZ)));
+        // vertices[i][1] += ((normals[i][1] * (1 + intensity * multiplierY)));
+        // vertices[i][2] += ((normals[i][0] * (1 + intensity * multiplierX)));
+
+        // vertices[i][0] += ((normals[i][2] * (1 + intensity)));
+        // vertices[i][1] += ((normals[i][1] * (1 + intensity)));
+        // vertices[i][2] += ((normals[i][0] * (1 + intensity)));
+
+        vertices[i][0] += ((normals[i][2] * multiplier));
+        vertices[i][1] += ((normals[i][1] * multiplier));
+        vertices[i][2] += ((normals[i][0] * multiplier));
+
+        // vertices[i][0] += ((normals[i][2] * (1 + intensity * 6)));
+        // vertices[i][1] += ((normals[i][1] * (1 + intensity * 6)));
+        // vertices[i][2] += ((normals[i][0] * (1 + intensity * 6)));
     }
 }
+function shapeSmoothingCrunch(loops) {
+    let zMax = 0;
+    let yMax = 0;
+    let xMax = 0;
+    let newVertices = [];
+    for (let i = 0; i < vertices.length; i++) {
+        if (vertices[i][0] > zMax) {
+            zMax = vertices[i][0];
+        }
+        if (vertices[i][1] > yMax) {
+            yMax = vertices[i][1];
+        }
+        if (vertices[i][2] > xMax) {
+            xMax = vertices[i][2];
+        }
+        newVertices.push(vertices[i]);
+    }
+
+    let shape = [];
 
 
+    for (let z = 0; z < zMax; z++) {
+        shape.push([]);
+        for (let y = 0; y < yMax; y++) {
+            shape[z].push([]);
+            for (let x = 0; x < xMax; x++) {
+                shape[z][y].push(-1);
+            }
+        }
+    }
+
+    shape = coatShape(shape);
+
+
+    for (let i = 0; i < vertices.length; i++) {
+        let z = vertices[i][0];
+        let y = vertices[i][1];
+        let x = vertices[i][2];
+        shape[z][y][x] = i;
+    }
+
+    for (let l = 0; l < loops; l++) {
+        for (let z = 1; z < shape.length - 1; z++) {
+            for (let y = 1; y < shape[z].length - 1; y++) {
+                for (let x = 1; x < shape[z][y].length - 1; x++) {
+
+                    let vertex = shape[z][y][x];
+                    if (!(vertex === -1)) {
+                        let verticeChecks = [];
+                        for (let i = -1; i < 2; i++) {
+                            for (let j = -1; j < 2; j++) {
+                                for (let k = -1; k < 2; k++) {
+                                    let vertexToCheck = shape[z + i][y + j][x + k];
+                                    if (vertexToCheck >= 0) {
+                                        verticeChecks.push(vertexToCheck);
+                                    }
+                                }
+                            }
+                        }
+
+                        let zValue = 0;
+                        let yValue = 0;
+                        let xValue = 0;
+
+                        for (let i = 0; i < verticeChecks.length; i++) {
+                            zValue += vertices[verticeChecks[i]][0];
+                            yValue += vertices[verticeChecks[i]][1];
+                            xValue += vertices[verticeChecks[i]][2];
+
+                        }
+
+                        zValue /= verticeChecks.length;
+                        yValue /= verticeChecks.length;
+                        xValue /= verticeChecks.length;
+
+                        newVertices[vertex] = [zValue, yValue, xValue];
+                    }
+
+                }
+            }
+        }
+
+        for (let i = 0; i < vertices.length; i++) {
+            vertices[i] = [newVertices[i][0], newVertices[i][1], newVertices[i][2]];
+        }
+
+    }
+}
+function shapeSmoothingCC() {
+
+    let edge = [0, 0];
+    let faces = [];
+    for (let i = 0; i < indices.length; i++) {
+        let v1 = vertices[indices[i][0]];
+        let v2 = vertices[indices[i][1]];
+        let v3 = vertices[indices[i][2]];
+
+        //  Make facePoint
+        let fv = [
+            (v1[0] + v2[0] + v3[0]) / 3,
+            (v1[1] + v2[1] + v3[1]) / 3,
+            (v1[2] + v2[2] + v3[2]) / 3
+        ]
+        faces.push([v1, v2, v3, fv]);
+    }
+    let edgeIndices = [];
+    for (let i = 0; i < indices.length; i++) {
+        let i1 = indices[i][0];
+        let i2 = indices[i][1];
+        let i3 = indices[i][2];
+
+        let v1, v2, fv1, fv2;
+
+        let edge1index = [i1, i2];
+        let edge2index = [i2, i3];
+        let edge3index = [i1, i3];
+
+        findEdge(edge1index[0], edge1index[1]);
+        v1 = faces[i][0];
+        v2 = faces[i][1];
+        fv1 = faces[edge[0]][3];
+        fv2 = faces[edge[1]][3];
+        let edge1 = [
+            (v1[0] + v2[0] + fv1[0] + fv2[0]) / 4,
+            (v1[1] + v2[1] + fv1[1] + fv2[1]) / 4,
+            (v1[2] + v2[2] + fv1[2] + fv2[2]) / 4
+        ]
+
+        findEdge(edge2index[0], edge2index[1]);
+        v1 = faces[i][1];
+        v2 = faces[i][2];
+        fv1 = faces[edge[0]][3];
+        fv2 = faces[edge[1]][3];
+        let edge2 = [
+            (v1[0] + v2[0] + fv1[0] + fv2[0]) / 4,
+            (v1[1] + v2[1] + fv1[1] + fv2[1]) / 4,
+            (v1[2] + v2[2] + fv1[2] + fv2[2]) / 4
+        ]
+
+        findEdge(edge3index[0], edge3index[1]);
+        v1 = faces[i][0];
+        v2 = faces[i][2];
+        fv1 = faces[edge[0]][3];
+        fv2 = faces[edge[1]][3];
+        let edge3 = [
+            (v1[0] + v2[0] + fv1[0] + fv2[0]) / 4,
+            (v1[1] + v2[1] + fv1[1] + fv2[1]) / 4,
+            (v1[2] + v2[2] + fv1[2] + fv2[2]) / 4
+        ]
+
+        faces[i] = [faces[i][0], faces[i][1], faces[i][2], faces[i][3], edge1, edge2, edge3];
+    }
+    console.log(faces);
+
+
+
+
+    function findEdge(ep1, ep2) {
+        let edgeNr = 0;
+        for (let j = 0; j < indices.length; j++) {
+            if (indices[j].includes(ep1) && indices[j].includes(ep2)) {
+                edge[edgeNr] = j;
+                edgeNr++;
+            }
+            if (edgeNr > 1) {
+                break;
+            }
+        }
+    }
+}
 //####################################################################
 //  Analyses a 2x2x2 piece - Returns type and rotation
 //####################################################################
@@ -1153,14 +1549,14 @@ function writeObjFile(vertices, indices, normals, name) {
         let v3 = vertices[i][2];
         objString += "v " + v1 + " " + v2 + " " + v3 + "\n";
     }
-    objString += "\n ";
+    objString += "\n";
     for (let k = 0; k < normals.length; k++) {
         let n1 = normals[k][0];
         let n2 = normals[k][1];
         let n3 = normals[k][2];
         objString += "vn " + n1 + " " + n2 + " " + n3 + "\n";
     }
-    objString += "\n ";
+    objString += "\n";
     for (let j = 0; j < indices.length; j++) {
         let i1 = indices[j][0] + 1;
         let i2 = indices[j][1] + 1;
@@ -1168,5 +1564,100 @@ function writeObjFile(vertices, indices, normals, name) {
         objString += "\n" + "f " + i1 + "//" + i1 + " " + i2 + "//" + i2 + " " + i3 + "//" + i3;
     }
 
-    download(objString, fileName, 'text');
+    download(objString, fileName + ".obj", 'text');
+}
+function writeJSON(vertices, indices, name) {
+    roundDoubleArray(vertices, 2);
+    let jsonData = JSON.stringify([vertices, indices]);
+    download(jsonData, name + ".json", "application/json");
+}
+function download(content, fileName, contentType) {
+    var a = document.createElement("a");
+    var file = new Blob([content], { type: contentType });
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+    console.log("Download finished");
+}
+function getJSONData() {
+    let request = new XMLHttpRequest();
+    let path = "fatBody.json";
+    request.open("GET", path);
+    request.send();
+    request.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            let bodyData = JSON.parse(this.responseText);
+            convertJsonToObj(bodyData);
+        }
+    }
+}
+function convertJsonToObj(data) {
+    let indexesToCheck = new Array(data[0].length);
+    for (let i = 0; i < indexesToCheck.length; i++) {
+        indexesToCheck[i] = [];
+    }
+    for (let i = 0; i < data[1].length; i++) {
+        for (let j = 0; j < data[1][i].length; j++) {
+            indexesToCheck[data[1][i][j]].push(i);
+        }
+    }
+
+    let normals = setNormalsFromJSON(indexesToCheck, data[0], data[1]);
+    function setNormalsFromJSON(normalsToCheck, vertices, indices) {
+        console.log("Setting Normals: Start");
+        let newNormals = [];
+        for (let i = 0; i < vertices.length; i++) {
+            let vertexNormalsRaw = [];
+            for (let j = 0; j < normalsToCheck[i].length; j++) {
+                let v1 = vertices[indices[normalsToCheck[i][j]][0]];
+                let v2 = vertices[indices[normalsToCheck[i][j]][1]];
+                let v3 = vertices[indices[normalsToCheck[i][j]][2]];
+                let n = calculateNormals(v1, v2, v3);
+                vertexNormalsRaw.push(n);
+            }
+
+            // Remove duplicate normals
+            let vertexNormalsFormated = [];
+            for (let x = 0; x < vertexNormalsRaw.length; x++) {
+                if (!vertexNormalsFormated.containsArray(vertexNormalsRaw[x])) {
+                    vertexNormalsFormated.push(vertexNormalsRaw[x]);
+                }
+            }
+
+            // Add normals together
+            let vertexNormalSum = [0, 0, 0];
+            for (let x = 0; x < vertexNormalsFormated.length; x++) {
+                vertexNormalSum[0] = vertexNormalSum[0] + vertexNormalsFormated[x][0];
+                vertexNormalSum[1] = vertexNormalSum[1] + vertexNormalsFormated[x][1];
+                vertexNormalSum[2] = vertexNormalSum[2] + vertexNormalsFormated[x][2];
+            }
+
+            if (vertexNormalSum[0] === 0 && vertexNormalSum[1] === 0 && vertexNormalSum[2] === 0) {
+
+                vertexNormalSum[0] = vertexNormalsFormated[0][0];
+                vertexNormalSum[1] = vertexNormalsFormated[0][1];
+                vertexNormalSum[2] = vertexNormalsFormated[0][2];
+            }
+
+            // Calculate Normal to Unit Vector
+            newNormals.push(Math.unitVector(vertexNormalSum[0], vertexNormalSum[1], vertexNormalSum[2]));
+
+        }
+        console.log("Setting Normals: Done");
+        return newNormals;
+    }
+
+    writeObjFile(data[0], data[1], normals, "ReconvertedBody");
+}
+function roundDoubleArray(array, number) {
+    for (let i = 0; i < array.length; i++) {
+        for (let j = 0; j < array[i].length; j++) {
+            array[i][j] = Math.precisionRound(array[i][j], number);
+        }
+    }
+}
+
+onmessage = function (e) {
+    let md = buildVertices(e.data[0], e.data[1], e.data[2]);
+    postMessage(md);
 }

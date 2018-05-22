@@ -9,12 +9,38 @@ var canvas = document.getElementById('myCanvas');
 var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
 
 var MRIShape = [];
+var fatBody = [];
+var waterBody = [];
+
+var fatPath = "fatBody.json";   //  Standard path for development
+var waterPath = "waterBody.json";   //  Standard path for development
+var fatLoaded = false;
+var waterLoaded = false;
+
+var fatProgress = document.getElementById("fatProgress");
+var waterProgress = document.getElementById("waterProgress");
+var btnShowFat = document.getElementById("btnShowFat");
+var btnShowWater = document.getElementById("btnShowWater");
+var btnShowComparison = document.getElementById("btnShowComparison");
+var instructions = document.getElementById("instructions");
+// Initialiser
+
+var scene = 0;
+function init() {
+
+    //Add functionality for getting proper URLs for fatPath and waterPath here
+    // getFat();
+    // getWater();
+    // getMRI("water", 0.9);
+}
+init();
 
 // CreateScene function that creates and return the scene
-var createScene = function (shape, mIntens, zModifier) {
+var createScene = function (shapeInput, mIntens, zModifier) {
 
     let minIntensity = mIntens || 0;
     let zMod = zModifier || 1;
+    let shape = shapeInput || 0;
     // Create the scene space
     var scene = new BABYLON.Scene(engine);
 
@@ -44,9 +70,9 @@ var createScene = function (shape, mIntens, zModifier) {
     wireframeMat.backCulling = false;
     var greenSurface = new BABYLON.StandardMaterial("greenSurface", scene);
     greenSurface.diffuseColor = new BABYLON.Color3((1 / 255) * 80, (1 / 255) * 140, (1 / 255) * 70);
-    // greenSurface.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87);
-    // greenSurface.emissiveColor = new BABYLON.Color3(1, 1, 1);
-    // greenSurface.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
+    greenSurface.specularColor = new BABYLON.Color3((1 / 255) * 80, (1 / 255) * 140, (1 / 255) * 70);
+    // greenSurface.emissiveColor = new BABYLON.Color3((1 / 255) * 80, (1 / 255) * 140, (1 / 255) * 70);
+    // greenSurface.ambientColor = new BABYLON.Color3((1 / 255) * 80, (1 / 255) * 140, (1 / 255) * 70);
     // greenSurface.backFaceCulling = false;
     // greenSurface.wireframe = true;
     var redSurface = new BABYLON.StandardMaterial("redSurface", scene);
@@ -57,197 +83,115 @@ var createScene = function (shape, mIntens, zModifier) {
     // let sphere = makeVoxelSphere();
 
 
+    if (!(shape === 0)) {
+        let layers = shape.length;
+        let startLayer = 0;
+        let meshData = buildShape(shape, minIntensity, zMod);
 
-    let layers = shape.length;
-    let startLayer = 0;
-    // let meshData = buildVertices(shape, minIntensity);
-    let meshData = buildVertices(shape, minIntensity, zMod);
-    // let meshData = voxelToVertice(bar);
 
-    //#######################################################
-    //  Lines
-    //#######################################################
+        //#######################################################
+        //  Lines
+        //#######################################################
 
-    let startpoint = -shape.length / 2;
-    var myPointsZ = [
-        new BABYLON.Vector3(startpoint, startpoint, startpoint),
-        new BABYLON.Vector3(startpoint, startpoint, 1000)
-    ];
-    var myPointsY = [
-        new BABYLON.Vector3(startpoint, startpoint, startpoint),
-        new BABYLON.Vector3(startpoint, 1000, startpoint)
-    ];
-    var myPointsX = [
-        new BABYLON.Vector3(startpoint, startpoint, startpoint),
-        new BABYLON.Vector3(1000, startpoint, startpoint)
-    ];
-    var myPoints1 = [
-        new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + 4),
-        new BABYLON.Vector3(1000, startpoint + 1, startpoint + 4)
-    ];
-    var myPoints2 = [
-        new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + 5),
-        new BABYLON.Vector3(1000, startpoint + 1, startpoint + 5)
-    ];
-    var myPoints3 = [
-        new BABYLON.Vector3(startpoint, startpoint + 2, startpoint + 4),
-        new BABYLON.Vector3(1000, startpoint + 2, startpoint + 4)
-    ];
-    var myPoints4 = [
-        new BABYLON.Vector3(startpoint, startpoint + 2, startpoint + 5),
-        new BABYLON.Vector3(1000, startpoint + 2, startpoint + 5)
-    ];
-    var redColor = [
-        new BABYLON.Color4(1, 0, 0, 1),
-        new BABYLON.Color4(1, 0, 0, 1)
-    ];
-    var greenColor = [
-        new BABYLON.Color4(0, 1, 0, 1),
-        new BABYLON.Color4(0, 1, 0, 1)
-    ];
-    var yellowColor = [
-        new BABYLON.Color4(1, 1, 0, 1),
-        new BABYLON.Color4(1, 1, 0, 1)
-    ];
+        let startpoint = -shape.length / 2;
+        //#######################################################
+        //  Meshes
+        //#######################################################
 
-    var xPointsScale = [
-        new BABYLON.Vector3(startpoint + 1, startpoint, startpoint)
-    ];
-    var yPointsScale = [
-        new BABYLON.Vector3(startpoint, startpoint + 1, startpoint)
-    ];
-    var zPointsScale = [
-        new BABYLON.Vector3(startpoint, startpoint, startpoint + 1)
-    ];
-    for (let i = 0; i < 100; i += 5) {
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i, startpoint, startpoint));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i, startpoint, startpoint + 1));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i, startpoint, startpoint - 1));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i, startpoint, startpoint));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 1, startpoint, startpoint));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 1, startpoint, startpoint + 1));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 1, startpoint, startpoint - 1));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 1, startpoint, startpoint));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 2, startpoint, startpoint));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 2, startpoint, startpoint + 1));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 2, startpoint, startpoint - 1));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 2, startpoint, startpoint));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 3, startpoint, startpoint));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 3, startpoint, startpoint + 1));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 3, startpoint, startpoint - 1));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 3, startpoint, startpoint));;
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 4, startpoint, startpoint));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 4, startpoint, startpoint + 1));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 4, startpoint, startpoint - 1));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 4, startpoint, startpoint));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 5, startpoint, startpoint));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 5, startpoint, startpoint + 3));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 5, startpoint, startpoint - 3));
-        xPointsScale.push(new BABYLON.Vector3(startpoint + i + 5, startpoint, startpoint));
+        var customMesh = new BABYLON.Mesh("custom", scene);
+        customMesh.material = greenSurface;
 
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i, startpoint));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i, startpoint + 1));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i, startpoint - 1));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i, startpoint));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 1, startpoint));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 1, startpoint + 1));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 1, startpoint - 1));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 1, startpoint));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 2, startpoint));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 2, startpoint + 1));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 2, startpoint - 1));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 2, startpoint));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 3, startpoint));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 3, startpoint + 1));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 3, startpoint - 1));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 3, startpoint));;
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 4, startpoint));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 4, startpoint + 1));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 4, startpoint - 1));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 4, startpoint));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 5, startpoint));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 5, startpoint + 3));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 5, startpoint - 3));
-        yPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + i + 5, startpoint));
+        var positions = [];
+        let vertices = meshData[0];
+        let indices = formatIndices(meshData[1]);
+        var normals = [];
+        let midsection = shape.length / 2;
+        for (let i = 0; i < vertices.length; i++) {
+            positions.push(vertices[i][2] - midsection);
+            positions.push(vertices[i][1] - midsection);
+            positions.push(vertices[i][0] - midsection);
+        }
+        normals = meshData[2];
+        normals = formatNormals(normals);
 
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i, ));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + i, ));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint - 1, startpoint + i, ));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i, ));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 1));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + i + 1));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint - 1, startpoint + i + 1));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 1));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 2));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + i + 2));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint - 1, startpoint + i + 2));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 2));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 3));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + i + 3));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint - 1, startpoint + i + 3));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 3));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 4));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + 1, startpoint + i + 4));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint - 1, startpoint + i + 4));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 4));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 5));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint + 3, startpoint + i + 5));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint - 3, startpoint + i + 5));
-        zPointsScale.push(new BABYLON.Vector3(startpoint, startpoint, startpoint + i + 5));
+        var vertexData = new BABYLON.VertexData();
+
+        vertexData.positions = positions;
+        vertexData.indices = indices;
+        vertexData.normals = normals;
+
+        vertexData.applyToMesh(customMesh, true);
     }
-    let abc = 0.1;
+    return scene;
+};
+var createSceneDirectly = function (shape) {
 
-    let tpn = [0, 0, 0];
+    let minIntensity = 0;
+    let zMod = 1;
 
-    // var testPointsArray = [
-    //     [startpoint, startpoint, startpoint],
-    //     [startpoint + 2, startpoint + 4, startpoint + 4]
-    // ];
-    var testPointsArray = [
-        [0, 0, 0],
-        [2, 4, 4]
-    ];
+    let zMid = 0;
+    let yMid = 0;
+    let xMid = 0;
 
-    // console.log(testPointsArray[1]);
+    for (let i = 0; i < shape[0].length; i++) {
+        if (shape[0][i][0] > zMid) {
+            zMid = shape[0][i][0];
+        }
+        if (shape[0][i][1] > yMid) {
+            yMid = shape[0][i][1];
+        }
+        if (shape[0][i][2] > xMid) {
+            xMid = shape[0][i][2];
+        }
+    }
 
-    // testPointsArray[1][0] = testPointsArray[1][0] - (tpn[0] * (1 - abc));
-    // testPointsArray[1][1] = testPointsArray[1][1] - (tpn[1] * (1 - abc));
-    // testPointsArray[1][2] = testPointsArray[1][2] - (tpn[2] * (1 - abc));
+    // zMid /= 2;
+    // yMid /= 2;
+    // xMid /= 2;
 
+    // Create the scene space
+    var scene = new BABYLON.Scene(engine);
 
-    // testPointsArray[1][1] = 0;
+    // Add a camera to the scene and attach it to the canvas
 
-    let t = Math.sqrt((testPointsArray[1][0]) * (testPointsArray[1][0]) + (testPointsArray[1][1]) * (testPointsArray[1][1]) + (testPointsArray[1][2]) * (testPointsArray[1][2]));
+    // Arc Camera
+    // var camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 4, Math.PI / 4, 4, BABYLON.Vector3.Zero(), scene);
 
-    // console.log(t);
+    // Free Camera
+    // var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(-3, 3, -(shape.length * 1.5), scene));
+    var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(xMid, yMid, zMid, scene));
+    camera.setTarget(BABYLON.Vector3.Zero());
 
-    testPointsArray[1][0] = (testPointsArray[1][0] / t) + startpoint;
-    testPointsArray[1][1] = (testPointsArray[1][1] / t) + startpoint;
-    testPointsArray[1][2] = (testPointsArray[1][2] / t) + startpoint;
+    camera.attachControl(canvas, true);
 
-    // console.log(testPointsArray);
+    // Add lights to the scene
+    var light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, 1, 0), scene);
+    var light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 1, -1), scene);
+    // light2.diffuse = new BABYLON.Color3(0, 1, 0);
+    // light2.specular = new BABYLON.Color3(0, 0, 1);
 
-    var testPoints = getTestPoints(testPointsArray);
+    var wireframeMat = new BABYLON.StandardMaterial("wiremat", scene);
+    wireframeMat.wireframe = true;
+    wireframeMat.backCulling = false;
+    var greenSurface = new BABYLON.StandardMaterial("greenSurface", scene);
+    greenSurface.diffuseColor = new BABYLON.Color3((1 / 255) * 80, (1 / 255) * 140, (1 / 255) * 70);
+    greenSurface.specularColor = new BABYLON.Color3((1 / 255) * 80, (1 / 255) * 140, (1 / 255) * 70);
+    // greenSurface.emissiveColor = new BABYLON.Color3((1 / 255) * 80, (1 / 255) * 140, (1 / 255) * 70);
+    // greenSurface.ambientColor = new BABYLON.Color3((1 / 255) * 80, (1 / 255) * 140, (1 / 255) * 70);
+    // greenSurface.backFaceCulling = false;
+    // greenSurface.wireframe = true;
+    var redSurface = new BABYLON.StandardMaterial("redSurface", scene);
+    redSurface.diffuseColor = new BABYLON.Color3(1, 0, 0);
+    // redSurface.specularColor = new BABYLON.Color3(0.5, 0.6, 0.87);
+    // redSurface.emissiveColor = new BABYLON.Color3(1, 1, 1);
+    // redSurface.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
 
-    // var testLine = BABYLON.MeshBuilder.CreateLines("testLine", { points: testPoints }, scene);
-
-    // var linesX = BABYLON.MeshBuilder.CreateLines("linesX", { points: myPointsX, colors: redColor }, scene);
-    var linesXscale = BABYLON.MeshBuilder.CreateLines("linesXscale", { points: xPointsScale }, scene);
-    var linesY = BABYLON.MeshBuilder.CreateLines("linesY", { points: myPointsY, colors: greenColor }, scene);
-    var linesYscale = BABYLON.MeshBuilder.CreateLines("linesYscale", { points: yPointsScale }, scene);
-    var linesZ = BABYLON.MeshBuilder.CreateLines("linesZ", { points: myPointsZ, colors: yellowColor }, scene);
-    var linesZscale = BABYLON.MeshBuilder.CreateLines("linesZscale", { points: zPointsScale }, scene);
-
-    // var lines1 = BABYLON.MeshBuilder.CreateLines("lines1", { points: myPoints1 }, scene);
-    // var lines2 = BABYLON.MeshBuilder.CreateLines("lines2", { points: myPoints2, colors: redColor }, scene);
-    // var lines3 = BABYLON.MeshBuilder.CreateLines("lines3", { points: myPoints3, colors: greenColor }, scene);
-    // var lines4 = BABYLON.MeshBuilder.CreateLines("lines4", { points: myPoints4, colors: yellowColor }, scene);
-
-    // let sphereLine = makeSphereLine(r + 1);
-    // var sLines = BABYLON.MeshBuilder.CreateLines("sLines", { points: sphereLine }, scene);
+    // let layers = shape.length;
+    // let startLayer = 0;
+    let meshData = shape;
 
     //#######################################################
-    //  Custom mesh
+    //  Meshes
     //#######################################################
 
     var customMesh = new BABYLON.Mesh("custom", scene);
@@ -255,38 +199,16 @@ var createScene = function (shape, mIntens, zModifier) {
 
     var positions = [];
     let vertices = meshData[0];
-    // console.log(meshData[1]);
-    let indices = formatIndices(meshData[1]);
+    // let indices = formatIndices(meshData[1]);
+    let indices = meshData[1];
     var normals = [];
     for (let i = 0; i < vertices.length; i++) {
-        positions.push(vertices[i][2] - shape.length / 2);
-        positions.push(vertices[i][1] - shape.length / 2);
-        positions.push(vertices[i][0] - shape.length / 2);
-        // positions.push(vertices[i][2]);
-        // positions.push(vertices[i][1]);
-        // positions.push(vertices[i][0]);
-        // indices.push(i);
+        positions.push(vertices[i][2]);
+        positions.push(vertices[i][1]);
+        positions.push(vertices[i][0]);
     }
 
-    // var positions = [];
-    // // console.log(meshData[0]);
-    // // console.log(meshData[1]);
-    // let vertices = meshData[0];
-    // let indices = meshData[1];
-    // var normals = [];
-    // for (let i = 0; i < vertices.length; i += 3) {
-    //     positions.push(vertices[i + 2] - shape.length / 2);
-    //     positions.push(vertices[i + 1] - shape.length / 2);
-    //     positions.push(vertices[i] - shape.length / 2);
-    // }
-    // positions = vertices;
-
-    // BABYLON.VertexData.ComputeNormals(positions, indices, normals);
-
     normals = meshData[2];
-    normals = formatNormals(normals);
-    // normals = getTestNormal();
-    // normals = fixNormals(normals);
 
     var vertexData = new BABYLON.VertexData();
 
@@ -295,106 +217,141 @@ var createScene = function (shape, mIntens, zModifier) {
     vertexData.normals = normals;
 
     vertexData.applyToMesh(customMesh, true);
-
-    // writeObjFile(meshData[0], meshData[1], meshData[2]);
-
-    // customMesh.convertToFlatShadedMesh();
-
-    // showNormals(customMesh);
-    // console.log(shape);
-
-
-    //#######################################################
-    //  Standard box format
-    //#######################################################
-    // for (let z = startLayer; z < (startLayer + layers); z++) {
-    //     for (let y = 0; y < shape[z].length; y++) {
-    //         for (let x = 0; x < shape[z][y].length; x++) {
-    //             if (shape[z][y][x] > minIntensity) {
-    //                 if (z === 2 && y === 5 && x === 3 || z === 3 && y === 4 && x === 3 ) {
-    //                     // check specific vertice
-    //                     let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.6, width: 0.6, depth: 0.6 }, scene);
-    //                     box.position.z = (z - shape.length / 2) + 1;
-    //                     box.position.y = (y - shape.length / 2) + 1;
-    //                     box.position.x = (x - shape.length / 2) + 1;
-    //                     if (z > layers / 2) {
-    //                         box.material = redSurface;
-    //                     } else {
-    //                         box.material = redSurface;
-    //                     }
-    //                 } else {
-    //                     let box = BABYLON.MeshBuilder.CreateBox("box", { height: 0.1, width: 0.1, depth: 0.1 }, scene);
-    //                     box.position.z = (z - shape.length / 2) + 1;
-    //                     box.position.y = (y - shape.length / 2) + 1;
-    //                     box.position.x = (x - shape.length / 2) + 1;
-    //                     if (z > layers / 2) {
-    //                         box.material = redSurface;
-    //                     } else {
-    //                         box.material = redSurface;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
-    console.log("done");
+    showInstructions();
     return scene;
 
 };
-var scene = 0;
-scene = createScene(makeShapes(20), 0.4);
+var createSceneWithBothBodies = function (shape, shape2) {
+
+    let minIntensity = 0;
+    let zMod = 1;
+
+    let zMid = 0;
+    let yMid = 0;
+    let xMid = 0;
+
+    for (let i = 0; i < shape[0].length; i++) {
+        if (shape[0][i][0] > zMid) {
+            zMid = shape[0][i][0];
+        }
+        if (shape[0][i][1] > yMid) {
+            yMid = shape[0][i][1];
+        }
+        if (shape[0][i][2] > xMid) {
+            xMid = shape[0][i][2];
+        }
+    }
+    // Create the scene space
+    var scene = new BABYLON.Scene(engine);
+
+    // Add a camera to the scene and attach it to the canvas
+
+    // Arc Camera
+    // var camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 4, Math.PI / 4, 4, BABYLON.Vector3.Zero(), scene);
+
+    // Free Camera
+    var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(xMid, yMid, zMid, scene));
+    camera.setTarget(BABYLON.Vector3.Zero());
+
+    camera.attachControl(canvas, true);
+
+    // Add lights to the scene
+    var light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, 1, 0), scene);
+    var light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 1, -1), scene);
+    // light2.diffuse = new BABYLON.Color3(0, 1, 0);
+    // light2.specular = new BABYLON.Color3(0, 0, 1);
+
+
+    // Add and manipulate meshes in the scene
+    // var box = BABYLON.MeshBuilder.CreateBox("box", { height: 1, width: 0.75, depth: 0.25 }, scene);
+
+    var wireframeMat = new BABYLON.StandardMaterial("wiremat", scene);
+    wireframeMat.wireframe = true;
+    wireframeMat.backCulling = false;
+    var greenSurface = new BABYLON.StandardMaterial("greenSurface", scene);
+    greenSurface.diffuseColor = new BABYLON.Color3((1 / 255) * 80, (1 / 255) * 140, (1 / 255) * 70);
+    greenSurface.specularColor = new BABYLON.Color3((1 / 255) * 80, (1 / 255) * 140, (1 / 255) * 70);
+    // greenSurface.emissiveColor = new BABYLON.Color3((1 / 255) * 80, (1 / 255) * 140, (1 / 255) * 70);
+    // greenSurface.ambientColor = new BABYLON.Color3((1 / 255) * 80, (1 / 255) * 140, (1 / 255) * 70);
+    // greenSurface.backFaceCulling = false;
+    // greenSurface.wireframe = true;
+    var redSurface = new BABYLON.StandardMaterial("redSurface", scene);
+    redSurface.diffuseColor = new BABYLON.Color3(1, 0, 0);
+    redSurface.specularColor = new BABYLON.Color3(1, 0, 0);
+    // redSurface.emissiveColor = new BABYLON.Color3(1, 1, 1);
+    // redSurface.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
+
+    let meshData = shape;
+
+    let meshData2 = shape2;
+
+    //#######################################################
+    //  Meshes
+    //#######################################################
+
+    var body1 = new BABYLON.Mesh("body1", scene);
+    var body2 = new BABYLON.Mesh("body2", scene);
+    body1.material = greenSurface;
+    body2.material = redSurface;
+
+    var positions1 = [];
+    var positions2 = [];
+    let vertices1 = meshData[0];
+    let vertices2 = meshData2[0];
+    let indices1 = meshData[1];
+    let indices2 = meshData2[1];
+    // let midsection = shape.length / 2;
+    let midsection = 125;
+    for (let i = 0; i < vertices1.length; i++) {
+        positions1.push(vertices1[i][2]);
+        positions1.push(vertices1[i][1]);
+        positions1.push(vertices1[i][0]);
+    }
+    for (let i = 0; i < vertices2.length; i++) {
+        positions2.push(vertices2[i][2]);
+        positions2.push(vertices2[i][1]);
+        positions2.push(vertices2[i][0]);
+    }
+
+    let normals1 = meshData[2];
+    let normals2 = meshData2[2];
+
+    var vertexData1 = new BABYLON.VertexData();
+
+    vertexData1.positions = positions1;
+    vertexData1.indices = indices1;
+    vertexData1.normals = normals1;
+
+    vertexData1.applyToMesh(body1, true);
+
+    var vertexData2 = new BABYLON.VertexData();
+
+    vertexData2.positions = positions2;
+    vertexData2.indices = indices2;
+    vertexData2.normals = normals2;
+
+
+    vertexData2.applyToMesh(body2, true);
+    showInstructions();
+    return scene;
+
+};
+scene = createScene(makeShapes(20));
+// scene = createScene();
 engine.runRenderLoop(function () {
     scene.render();
 });
 
-// let ssss = buildVertices(makeShapes(10));
 //#######################################################
 //  Choose shape
 //#######################################################
 function makeShapes(r) {
-    // let shape = makeVoxelSphereOutline();
-    // let shape = makeVoxelSphere(r);
-    let shape = getTestShapes(5);
-    // let shape = getTestPolygonSmall();
-    // let shape = getTestPolygonLarge();
-    // let shape = makeBar();
-    // console.log(shape);
+    let shape = makeVoxelSphere(r, 0.3);
     return shape;
 }
 //#######################################################
-//  Choose shape
+//  Minor Functions
 //#######################################################
-
-function makeTestObj(r) {
-    let rad = r;
-    let sph = makeVoxelSphere(rad);
-    let md = buildVertices(sph);
-    let verts = md[0];
-    let indis = md[1];
-    let norms = md[2];
-    writeObjFile(verts, indis, norms);
-}
-// makeTestObj(6);
-
-
-function showNormals(mesh, size, color, sc) {
-    var normals = mesh.getVerticesData(BABYLON.VertexBuffer.NormalKind);
-    var positions = mesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
-    color = color || BABYLON.Color3.White();
-    sc = sc || scene;
-    size = size || 1;
-
-    var lines = [];
-    for (var i = 0; i < normals.length; i += 3) {
-        var v1 = BABYLON.Vector3.FromArray(positions, i);
-        var v2 = v1.add(BABYLON.Vector3.FromArray(normals, i).scaleInPlace(size));
-        lines.push([v1.add(mesh.position), v2.add(mesh.position)]);
-    }
-    var normalLines = BABYLON.MeshBuilder.CreateLineSystem("normalLines", { lines: lines }, sc);
-    normalLines.color = color;
-    return normalLines;
-}
 
 function makeSphere() {
     engine.stopRenderLoop();
@@ -404,28 +361,6 @@ function makeSphere() {
         scene.render();
     });
 }
-function makeBar() {
-    let thickness = 2;
-    let breadth = 2;
-    let barLength = 4;
-
-    let bar = [];
-
-    for (let z = 0; z < thickness; z++) {
-        let vert = [];
-        for (let y = 0; y <= breadth; y++) {
-            let hor = [];
-            for (let x = 0; x < barLength; x++) {
-                hor.push(1);
-            }
-            vert.push(hor);
-        }
-        bar.push(vert);
-    }
-    // console.log(bar)
-    return bar;
-}
-
 function makeVoxelSphere(r) {
     let radius = r;
     // let radius = document.getElementById("cubeRadius").value;
@@ -458,166 +393,6 @@ function makeVoxelSphere(r) {
     // console.log(sphere);
     return sphere;
 }
-
-function makeSphereLine(r) {
-    let radius = r;
-    let points = [];
-    let theta = 0;
-    let deltaTheta = 0.1;
-    let y = 0;
-    for (let i = 0; i < 64; i++) {
-        points.push(new BABYLON.Vector3(radius * Math.cos(theta), y, radius * Math.sin(theta)));
-        theta += deltaTheta;
-    }
-    return points;
-}
-
-function makeVoxelSphereOutline() {
-    let radius = 10;
-    // let radius = document.getElementById("cubeRadius").value;
-    if (radius < 2) {
-        radius = 2;
-    }
-    console.log(radius);
-    let sphere = [];
-    let diameter = radius * 2;
-    // let hor = new Array(diameter + 1);
-    // let vert = new Array(diameter + 1);
-    // let sphere = new Array(diameter + 1);
-    for (let z = 0; z <= diameter; z++) {
-        let vert = [];
-        for (let y = 0; y <= diameter; y++) {
-            let hor = [];
-            for (let x = 0; x <= diameter; x++) {
-                let a = Math.abs(radius - y);
-                let b = Math.sqrt(Math.pow(Math.abs(radius - x), 2) + Math.pow(Math.abs(radius - z), 2));
-                let c = Math.sqrt((a * a) + (b * b));
-                let distance = Math.abs(c);
-                // console.log(distance);
-                // if (distance < radius + 0.4 && distance > radius - 0.4) {
-                if (Math.floor(distance) == radius) {
-                    hor.push(1);
-                    // console.log('hit: ' + z + ': ' + y + ': ' + x);
-                    // console.log(sphere[z][y][x]);
-                } else {
-                    hor.push(0);
-                }
-            }
-            vert.push(hor);
-        }
-        sphere.push(vert);
-    }
-    sphere = hollowFix(sphere, radius);
-    // console.log(sphere);
-    return sphere;
-}
-
-function hollowFix(sphere, r) {
-    let newSphere = sphere;
-    for (let i = 1; i < r; i++) {
-        let dist = (r * 2) + 1;
-        for (let z = -i; z < i; z++) {
-            for (let y = -i; y <= i; y++) {
-                for (let x = -i; x <= i; x++) {
-                    let zN = 0;
-                    if (sphere[(r + z) - 1][(r + y)][(r + x)] === 1 || sphere[(r + z) + 1][(r + y)][(r + x)] === 1) {
-                        zN = 1;
-                    }
-                    let yN = 0;
-                    if (sphere[(r + z)][(r + y) - 1][(r + x)] === 1 || sphere[(r + z)][(r + y) + 1][(r + x)] === 1) {
-                        yN = 1;
-                    }
-                    let xN = 0;
-                    if (sphere[(r + z)][(r + y)][(r + x) - 1] === 1 || sphere[(r + z)][(r + y)][(r + x) + 1] === 1) {
-                        xN = 1;
-                    }
-                    if (zN === 1 && yN === 1 && xN === 1 && sphere[(r + z)][(r + y)][(r + x)] === 1) {
-                        sphere[(r + z)][(r + y)][(r + x)] = 2;
-                    }
-                }
-            }
-        }
-    }
-    return newSphere;
-}
-
-
-// TODO write a better hollow function that uses radius to reduce a 4x4 block size to a
-// minimum of 4 active blocks, removing any active blocks that are closest to the center (origo)
-function hollowSphere() {
-}
-
-function saveSphere(data) {
-    let jsonData = JSON.stringify(data);
-    let name = "sphere";
-    console.log("Starting download");
-    download(jsonData, name + '.json', 'application/json');
-}
-
-function download(content, fileName, contentType) {
-    var a = document.createElement("a");
-    var file = new Blob([content], { type: contentType });
-    a.href = URL.createObjectURL(file);
-    a.download = fileName;
-    a.click();
-    console.log("Download finished");
-}
-
-window.addEventListener('resize', function () {
-    engine.resize();
-});
-
-
-function getTestShapes(size) {
-    let shape = [];
-
-    for (let z = 0; z < 4; z++) {
-        shape.push([]);
-        for (let y = 0; y < 4; y++) {
-            shape[z].push([]);
-            for (let x = 0; x < 800; x++) {
-                shape[z][y].push(0);
-            }
-        }
-    }
-
-    let xpos = 0;
-
-    for (let a0 = 0; a0 < 2; a0++) {
-        for (let a1 = 0; a1 < 2; a1++) {
-            for (let a2 = 0; a2 < 2; a2++) {
-                for (let a3 = 0; a3 < 2; a3++) {
-                    for (let a4 = 0; a4 < 2; a4++) {
-                        for (let a5 = 0; a5 < 2; a5++) {
-                            for (let a6 = 0; a6 < 2; a6++) {
-                                for (let a7 = 0; a7 < 2; a7++) {
-                                    let sum = a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7;
-                                    if (sum === size) {
-
-                                        xpos += 3;
-
-                                        shape[1][1][xpos] = a0;
-                                        shape[1][1][xpos + 1] = a1;
-                                        shape[1][2][xpos] = a2;
-                                        shape[1][2][xpos + 1] = a3;
-                                        shape[2][1][xpos] = a4;
-                                        shape[2][1][xpos + 1] = a5;
-                                        shape[2][2][xpos] = a6;
-                                        shape[2][2][xpos + 1] = a7;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // console.log(shape);
-    return shape;
-}
-
 function formatIndices(indices) {
     let formatedIndices = [];
     for (let i = 0; i < indices.length; i++) {
@@ -636,167 +411,130 @@ function formatNormals(normals) {
     }
     return formatedNormals;
 }
-
-function getTestPolygonSmall() {
-    let polygon =
-        [
-            [
-                [0, 0, 0, 0],
-                [0, 1, 1, 0],
-                [0, 1, 1, 0],
-                [0, 0, 0, 0]
-            ],
-            [
-                [0, 1, 1, 0],
-                [1, 1, 1, 1],
-                [1, 1, 1, 1],
-                [0, 1, 1, 0]
-            ],
-            [
-                [0, 1, 1, 0],
-                [1, 1, 1, 1],
-                [1, 1, 1, 1],
-                [0, 1, 1, 0]
-            ],
-            [
-                [0, 0, 0, 0],
-                [0, 1, 1, 0],
-                [0, 1, 1, 0],
-                [0, 0, 0, 0]
-            ]
-        ];
-    return polygon;
-}
-
-function getTestPolygonLarge() {
-    let polygon =
-        [
-            [
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            ],
-            [
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            ],
-            [
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            ],
-            [
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            ],
-            [
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            ]
-        ]
-    return polygon;
-}
-
-function getTestNormal() {
-    let normal =
-        [
-            [-1, -1, 1]
-            , [-1, 1, 1]
-            , [1, -1, 1]
-            // ,[-1, 0, -2]
-        ];
-    return normal;
-}
-function fixNormals(n) {
-    let a = [];
-    for (let i = 0; i < n.length; i++) {
-        let n1 = n[i][0] / (Math.tangent3d(n[i][0], n[i][1], n[i][2]));
-        let n2 = n[i][1] / (Math.tangent3d(n[i][0], n[i][1], n[i][2]));
-        let n3 = n[i][2] / (Math.tangent3d(n[i][0], n[i][1], n[i][2]));
-        a.push(n1);
-        a.push(n2);
-        a.push(n3);
-    }
-    // console.log(a);
-    return a;
-}
-
-function getTestPoints(array) {
-    let pArray = [];
-    for (let i = 0; i < array.length; i++) {
-        pArray.push(new BABYLON.Vector3(array[i][0], array[i][1], array[i][2]))
-    }
-    return pArray;
-}
-
-function getMRI() {
+function getMRI(type, minIntensity) {
     let request = new XMLHttpRequest();
-    let path = "water.json";
+    let path = type + ".json";
     request.open("GET", path);
     request.send();
     request.onreadystatechange = function () {
         if (this.readyState == 4) {
             MRIShape = JSON.parse(this.responseText);
-            let btnConvert = document.getElementById("btnConvertMRI");
-            btnConvert.style.visibility = "visible";
+            // let btnConvert = document.getElementById("btnConvertMRI");
+            // btnConvert.style.visibility = "visible";
             // console.log(MRIShape);
+            convertMRI(type, minIntensity);
         }
     }
 }
+function getFat() {
+    let request = new XMLHttpRequest();
+    request.open("GET", fatPath);
+    request.send();
+    request.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            let fatJson = JSON.parse(this.responseText);
+            let w;
+            let md;
+            if (typeof (Worker) !== "undefined") {
+                // Yes! Web worker support!
+                // Some code.....
+                if (typeof (w) == "undefined") {
+                    w = new Worker("js/JSON_Converter_Worker.js");
+                    w.postMessage(fatJson);
+                    fatProgress.innerHTML = "Fat: Formatting, this may take a minute or two.";
+                }
+            } else {
+                // Sorry! No Web Worker support..
+                console.log("No Worker");
+            }
+            w.onmessage = function (e) {
+                let objVertices = e.data[0];
+                let objIndices = formatIndices(e.data[1]);
+                let objNormals = formatNormals(e.data[2]);
+                w.terminate();
+                fatBody = [objVertices, objIndices, objNormals];
+                btnShowFat.disabled = false;
+                fatLoaded = true;
+                showComparisonBtn();
+                fatProgress.innerHTML = "Fat: Done";
+                console.log("Fat Done");
+            }
+        }
+    }
+}
+function getWater() {
+    let request = new XMLHttpRequest();
+    request.open("GET", waterPath);
+    request.send();
+    request.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            let waterJson = JSON.parse(this.responseText);
+            let w;
+            let md;
+            if (typeof (Worker) !== "undefined") {
+                // Yes! Web worker support!
+                // Some code.....
+                if (typeof (w) == "undefined") {
+                    w = new Worker("js/JSON_Converter_Worker.js");
+                    w.postMessage(waterJson);
+                    waterProgress.innerHTML = "Water: Formatting, this may take a minute or two.";
+                }
+            } else {
+                // Sorry! No Web Worker support..
+                console.log("No Worker");
+            }
+            w.onmessage = function (e) {
+                let objVertices = e.data[0];
+                let objIndices = formatIndices(e.data[1]);
+                let objNormals = formatNormals(e.data[2]);
+                w.terminate();
+                waterBody = [objVertices, objIndices, objNormals];
+                btnShowWater.disabled = false;
+                waterLoaded = true;
+                showComparisonBtn();
+                waterProgress.innerHTML = "Water: Done";
+                console.log("Water Done");
+            }
+        }
+    }
+}
+function showComparisonBtn() {
+    if (fatLoaded === true && waterLoaded === true) {
+        btnShowComparison.style.visibility = "visible";
+    }
+}
+function showFat() {
+    scene = createSceneDirectly(fatBody);
+    engine.stopRenderLoop();
+    engine.runRenderLoop(function () {
+        scene.render();
+    });
+}
+function showWater() {
+    scene = createSceneDirectly(waterBody);
+    engine.stopRenderLoop();
+    engine.runRenderLoop(function () {
+        scene.render();
+    });
 
-function convertMRI() {
-    let startLayer = 40;
-    // let startLayer = 55;
-    // let layers = MRIShape.length;
-    let layers = 50;
+}
+function showComparison() {
+    scene = createSceneWithBothBodies(waterBody, fatBody);
+    engine.stopRenderLoop();
+    engine.runRenderLoop(function () {
+        scene.render();
+    });
+}
+function showInstructions() {
+    instructions.style.visibility = "visible";
+    fatProgress.style.visibility = "hidden";
+    waterProgress.style.visibility = "hidden";
+}
+function convertMRI(type, minIntensity) {
+    let startLayer = 0;
+    let layers = MRIShape.length;
+    // let startLayer = 100;
+    // let layers = 100;
     let shape = [];
     for (let i = startLayer; i < (startLayer + layers); i++) {
         let hors = [];
@@ -811,27 +549,435 @@ function convertMRI() {
     }
     // console.log(shape);
     // shape = getTestShapes(4);
-    // makeObj(shape, 0.5, 2);
-    // makeObj(MRIShape);
-    engine.stopRenderLoop();
-    scene = createScene(shape, 0.5, 1);
-    engine.runRenderLoop(function () {
-        scene.render();
-    });
+    makeFullBody(shape, minIntensity, 2);
+    // makeObj(shape, 0.4, 2);
+    // let name = type + "Body";
+    // makeJSON(name, shape, 0.3, 2);
+    // engine.stopRenderLoop();
+    // scene = createScene(shape, 0.4, 2);
+    // engine.runRenderLoop(function () {
+    //     scene.render();
+    // });
 }
+function convertMRIFromJSON(type) {
+    let fileName = type + "Body";
 
+    let request = new XMLHttpRequest();
+    let path = fileName + ".json";
+    request.open("GET", path);
+    request.send();
+    request.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            let bodyData = JSON.parse(this.responseText);
+            console.log("JSON recieved");
+            let shape = makeFullBodyFromJSON(bodyData);
+            console.log("JSON converted");
+        }
+    }
+    function convertJSON(data) {
+        let indexesToCheck = new Array(data[0].length);
+        for (let i = 0; i < indexesToCheck.length; i++) {
+            indexesToCheck[i] = [];
+        }
+        for (let i = 0; i < data[1].length; i++) {
+            for (let j = 0; j < data[1][i].length; j++) {
+                indexesToCheck[data[1][i][j]].push(i);
+            }
+        }
+        let normals = setNormalsFromJSON(indexesToCheck, data[0], data[1]);
+        function setNormalsFromJSON(normalsToCheck, vertices, indices) {
+            let newNormals = [];
+            for (let i = 0; i < vertices.length; i++) {
+                let vertexNormalsRaw = [];
+                for (let j = 0; j < normalsToCheck[i].length; j++) {
+                    let v1 = vertices[indices[normalsToCheck[i][j]][0]];
+                    let v2 = vertices[indices[normalsToCheck[i][j]][1]];
+                    let v3 = vertices[indices[normalsToCheck[i][j]][2]];
+                    let n = calculateNormals(v1, v2, v3);
+                    vertexNormalsRaw.push(n);
+                }
+
+                // Remove duplicate normals
+                let vertexNormalsFormated = [];
+                for (let x = 0; x < vertexNormalsRaw.length; x++) {
+                    if (!vertexNormalsFormated.containsArray(vertexNormalsRaw[x])) {
+                        vertexNormalsFormated.push(vertexNormalsRaw[x]);
+                    }
+                }
+
+                // Add normals together
+                let vertexNormalSum = [0, 0, 0];
+                for (let x = 0; x < vertexNormalsFormated.length; x++) {
+                    vertexNormalSum[0] = vertexNormalSum[0] + vertexNormalsFormated[x][0];
+                    vertexNormalSum[1] = vertexNormalSum[1] + vertexNormalsFormated[x][1];
+                    vertexNormalSum[2] = vertexNormalSum[2] + vertexNormalsFormated[x][2];
+                }
+
+                if (vertexNormalSum[0] === 0 && vertexNormalSum[1] === 0 && vertexNormalSum[2] === 0) {
+
+                    vertexNormalSum[0] = vertexNormalsFormated[0][0];
+                    vertexNormalSum[1] = vertexNormalsFormated[0][1];
+                    vertexNormalSum[2] = vertexNormalsFormated[0][2];
+                }
+
+                // Calculate Normal to Unit Vector
+                newNormals.push(Math.unitVector(vertexNormalSum[0], vertexNormalSum[1], vertexNormalSum[2]));
+            }
+            return newNormals;
+        }
+        function calculateNormals(a, b, c) {
+            // (a, b, c)
+
+            //Calculate vector
+            let vAB = [
+                a[2] - b[2],
+                a[1] - b[1],
+                a[0] - b[0]
+            ];
+            let vCB = [
+                c[2] - b[2],
+                c[1] - b[1],
+                c[0] - b[0]
+            ];
+
+            //Polygon Normal
+            let n = Math.cross(vAB, vCB);
+
+            //Normal Length Adjustment
+            let x = [];
+            let n1 = n[0];
+            let n2 = n[1];
+            let n3 = n[2];
+            x.push(n1);
+            x.push(n2);
+            x.push(n3);
+            return x;
+        }
+        return [data[0], data[1], normals]
+    }
+}
+function convertMRIFromJSONforBoth() {
+
+    let request = new XMLHttpRequest();
+    let fatPath = "fatBody.json";
+    request.open("GET", fatPath);
+    request.send();
+    request.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            let bodyData1 = JSON.parse(this.responseText);
+            let request2 = new XMLHttpRequest();
+            let waterPath = "waterBody.json";
+            request2.open("GET", waterPath);
+            request2.send();
+            request2.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    let bodyData2 = JSON.parse(this.responseText);
+                    bodyData1 = convertJSON(bodyData1);
+                    bodyData2 = convertJSON(bodyData2);
+                    console.log(bodyData1);
+                    console.log(bodyData2);
+                    engine.stopRenderLoop();
+                    scene = createSceneWithBothBodies(bodyData1, bodyData2);
+                    engine.runRenderLoop(function () {
+                        scene.render();
+                    });
+                }
+
+
+            }
+        }
+    }
+    function convertJSON(data) {
+        let indexesToCheck = new Array(data[0].length);
+        for (let i = 0; i < indexesToCheck.length; i++) {
+            indexesToCheck[i] = [];
+        }
+        for (let i = 0; i < data[1].length; i++) {
+            for (let j = 0; j < data[1][i].length; j++) {
+                indexesToCheck[data[1][i][j]].push(i);
+            }
+        }
+        let normals = setNormalsFromJSON(indexesToCheck, data[0], data[1]);
+        function setNormalsFromJSON(normalsToCheck, vertices, indices) {
+            let newNormals = [];
+            for (let i = 0; i < vertices.length; i++) {
+                let vertexNormalsRaw = [];
+                for (let j = 0; j < normalsToCheck[i].length; j++) {
+                    let v1 = vertices[indices[normalsToCheck[i][j]][0]];
+                    let v2 = vertices[indices[normalsToCheck[i][j]][1]];
+                    let v3 = vertices[indices[normalsToCheck[i][j]][2]];
+                    let n = calculateNormals(v1, v2, v3);
+                    vertexNormalsRaw.push(n);
+                }
+
+                // Remove duplicate normals
+                let vertexNormalsFormated = [];
+                for (let x = 0; x < vertexNormalsRaw.length; x++) {
+                    if (!vertexNormalsFormated.containsArray(vertexNormalsRaw[x])) {
+                        vertexNormalsFormated.push(vertexNormalsRaw[x]);
+                    }
+                }
+
+                // Add normals together
+                let vertexNormalSum = [0, 0, 0];
+                for (let x = 0; x < vertexNormalsFormated.length; x++) {
+                    vertexNormalSum[0] = vertexNormalSum[0] + vertexNormalsFormated[x][0];
+                    vertexNormalSum[1] = vertexNormalSum[1] + vertexNormalsFormated[x][1];
+                    vertexNormalSum[2] = vertexNormalSum[2] + vertexNormalsFormated[x][2];
+                }
+
+                if (vertexNormalSum[0] === 0 && vertexNormalSum[1] === 0 && vertexNormalSum[2] === 0) {
+
+                    vertexNormalSum[0] = vertexNormalsFormated[0][0];
+                    vertexNormalSum[1] = vertexNormalsFormated[0][1];
+                    vertexNormalSum[2] = vertexNormalsFormated[0][2];
+                }
+
+                // Calculate Normal to Unit Vector
+                newNormals.push(Math.unitVector(vertexNormalSum[0], vertexNormalSum[1], vertexNormalSum[2]));
+            }
+            return newNormals;
+        }
+        function calculateNormals(a, b, c) {
+            // (a, b, c)
+
+            //Calculate vector
+            let vAB = [
+                a[2] - b[2],
+                a[1] - b[1],
+                a[0] - b[0]
+            ];
+            let vCB = [
+                c[2] - b[2],
+                c[1] - b[1],
+                c[0] - b[0]
+            ];
+
+            //Polygon Normal
+            let n = Math.cross(vAB, vCB);
+
+            //Normal Length Adjustment
+            let x = [];
+            let n1 = n[0];
+            let n2 = n[1];
+            let n3 = n[2];
+            x.push(n1);
+            x.push(n2);
+            x.push(n3);
+            return x;
+        }
+        return [data[0], data[1], normals]
+    }
+}
 function makeObj(shape, intensity, zMod) {
-    let md = buildVertices(shape, intensity, zMod);
-    let objVertices = md[0];
-    let objIndices = md[1];
-    let objNormals = md[2];
-    writeObjFile(objVertices, objIndices);
+    let w;
+    let md;
+    if (typeof (Worker) !== "undefined") {
+        // Yes! Web worker support!
+        // Some code.....
+        if (typeof (w) == "undefined") {
+            w = new Worker("js/buildPolygons_Worker.js");
+            w.postMessage([shape, intensity, zMod]);
+        }
+    } else {
+        // Sorry! No Web Worker support..
+        console.log("No Worker");
+    }
+    w.onmessage = function (e) {
+        console.log(e.data);
+        let objVertices = e.data[0];
+        let objIndices = e.data[1];
+        let objNormals = e.data[2];
+        writeObjFile(objVertices, objIndices, objNormals);
+        w.terminate();
+    }
+}
+function makeFullBody(shape, intensity, zMod) {
+    let w;
+    let md;
+    if (typeof (Worker) !== "undefined") {
+        // Yes! Web worker support!
+        // Some code.....
+        if (typeof (w) == "undefined") {
+            w = new Worker("js/verticeConverter.js");
+            w.postMessage([shape, intensity, zMod]);
+        }
+    } else {
+        // Sorry! No Web Worker support..
+        console.log("No Worker");
+    }
+    w.onmessage = function (e) {
+        console.log(e.data);
+        let objVertices = e.data[0];
+        let objIndices = formatIndices(e.data[1]);
+        let objNormals = formatNormals(e.data[2]);
+        w.terminate();
+        let body = [objVertices, objIndices, objNormals];
+        engine.stopRenderLoop();
+        scene = createSceneDirectly(body);
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+    }
+}
+function makeFullBodyFromJSON(shape) {
+    let w;
+    let md;
+    if (typeof (Worker) !== "undefined") {
+        // Yes! Web worker support!
+        // Some code.....
+        if (typeof (w) == "undefined") {
+            w = new Worker("js/JSON_Converter_Worker.js");
+            w.postMessage(shape);
+        }
+    } else {
+        // Sorry! No Web Worker support..
+        console.log("No Worker");
+    }
+    w.onmessage = function (e) {
+        let objVertices = e.data[0];
+        let objIndices = e.data[1];
+        let objNormals = e.data[2];
+        w.terminate();
+        let body = [objVertices, objIndices, objNormals];
+        console.log("Making Scene");
+        engine.stopRenderLoop();
+        scene = createSceneDirectly(body);
+        rotation = 0;
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+    }
+}
+function makeComparativeBodyFromJson(shape) {
+    let w;
+    let md;
+    if (typeof (Worker) !== "undefined") {
+        // Yes! Web worker support!
+        // Some code.....
+        if (typeof (w) == "undefined") {
+            w = new Worker("js/JSON_Converter_Worker.js");
+            w.postMessage(shape);
+        }
+    } else {
+        // Sorry! No Web Worker support..
+        console.log("No Worker");
+    }
+    w.onmessage = function (e) {
+        console.log(e);
+        w.terminate();
+        return e.data;
+    }
+}
+function makeJSON(name, shape, intensity, zMod) {
+    let w;
+    let md;
+    if (typeof (Worker) !== "undefined") {
+        // Yes! Web worker support!
+        // Some code.....
+        if (typeof (w) == "undefined") {
+            w = new Worker("js/buildPolygons_Worker.js");
+            w.postMessage([shape, intensity, zMod]);
+        }
+    } else {
+        // Sorry! No Web Worker support..
+        console.log("No Worker");
+    }
+    w.onmessage = function (e) {
+        console.log(e.data);
+        let objVertices = e.data[0];
+        let objIndices = e.data[1];
+        w.terminate();
+        writeJSON(objVertices, objIndices, name);
+    }
+}
+function niclasNormals(r) {
+    getVertexNormals(getTestPolygonSmall());
+}
+// niclasNormals(10);
+
+// if (typeof(Worker) !== "undefined") {
+//     // Yes! Web worker support!
+//     // Some code.....
+//     console.log("Got worker");
+// } else {
+//     // Sorry! No Web Worker support..
+// }
+// if (typeof(w) == "undefined") {
+//     // w = new Worker("js/demo_workers.js");
+// }
+
+// w.onmessage = function(event){
+//     document.getElementById("result").innerHTML = event.data;
+// };
+
+
+// let testNr = 1 + 1 / 3;
+// console.log(testNr);
+
+// testNr = testNr.toFixed(2);
+// console.log(testNr);
+
+
+function compareFatVSWater() {
+    let water = "fat.json";
+    let fat = "fat.json";
+    let waterArray = [];
+    let fatArray = [];
+    let request = new XMLHttpRequest();
+    request.open("GET", water);
+    request.send();
+    request.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            waterArray = JSON.parse(this.responseText);
+
+            let request2 = new XMLHttpRequest();
+            request2.open("GET", fat);
+            request2.send();
+            request2.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    fatArray = JSON.parse(this.responseText);
+                    let mismatch = 0;
+                    for (let z = 0; z < waterArray.length; z++) {
+                        for (let y = 0; y < waterArray[z].length; y++) {
+                            for (let x = 0; x < waterArray[z][y].length; x++) {
+                                if (!(waterArray[z][y][x] === fatArray[z][y][x])) {
+                                    mismatch++;
+                                }
+                            }
+                        }
+                    }
+                    console.log(mismatch + " mismatches.");
+                }
+            }
+        }
+    }
+}
+// compareFatVSWater();
+// 5183718
+// 5183718
+
+window.addEventListener('resize', function () {
+    engine.resize();
+});
+window.addEventListener("keydown", function (e) {
+    // space and arrow keys
+    if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+        e.preventDefault();
+    }
+}, false);
+
+
+function funCode() {
+    let numbers = [];
+    let max = 9999;
+    let string = "0";
+    for (let i = 1; i < max; i++) {
+        // numbers.push(i);
+        string += "\n" + i;
+    }
+    let garbage = document.getElementById("garbage");
+    garbage.innerHTML = string;
 }
 
-function makeObjOLD(shape, intensity) {
-    let md = buildVertices(shape, intensity);
-    let objVertices = md[0];
-    let objIndices = md[1];
-    let objNormals = md[2];
-    writeObjFile(objVertices, objIndices, objNormals);
-}
+// funCode();
